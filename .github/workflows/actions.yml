@@ -1,7 +1,7 @@
 # 这是一个 GitHub Actions 工作流程文件，用于在 GitHub 仓库中自动执行 CI/CD 任务。
 
-名称：GitHub Actions Demo
-运行名称：${{ github.actor }} 正在测试 GitHub Actions 🚀 
+name: Actions Demo
+run-name: ${{ github.actor }} 正在测试 GitHub Actions 🚀 
 on: [push] 
 jobs: 
   Explore-GitHub-Actions: 
