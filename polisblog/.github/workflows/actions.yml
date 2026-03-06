@@ -1,0 +1,20 @@
+# 这是一个 GitHub Actions 工作流程文件，用于在 GitHub 仓库中自动执行 CI/CD 任务。
+
+名称：GitHub Actions Demo
+运行名称：${{ github.actor }} 正在测试 GitHub Actions 🚀 
+on: [push] 
+jobs: 
+  Explore-GitHub-Actions: 
+    runs-on: ubuntu-latest 
+    steps: 
+      - run: echo "🎉 该作业由 ${{ github.event_name }} 事件自动触发。" 
+      - run: echo "🐧 该作业现在正在 GitHub 托管的 ${{ runner.os }} 服务器上运行！" 
+      - run: echo "🔎 您的分支名称为 ${{ github.ref }}，您的仓库为 ${{ github.repository }}。" 
+      - name: 检出仓库代码
+        uses: actions/checkout@v5 
+      - run: echo "💡 ${{ github.repository }} 仓库已克隆到 runner。" 
+      - run: echo "🖥️ 工作流现已准备好在 runner 上测试您的代码。" 
+      - name: 列出仓库中的文件
+        run: | 
+          ls ${{ github.workspace }} 
+      - run: echo "🍏 此作业的状态为 ${{ job.status }}."
