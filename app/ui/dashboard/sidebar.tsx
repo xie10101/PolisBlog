@@ -1,18 +1,99 @@
 // 侧边栏- dashboard-layout组件 
+"use client"
+import { Sidebar } from "@/components/ui/sidebar"
+// 使用 provider
+import {SidebarFooter, SidebarMenu,SidebarMenuItem,SidebarMenuButton,
+      SidebarContent,SidebarGroup,SidebarHeader,SidebarInset,SidebarGroupLabel,SidebarGroupContent} from "@/components/ui/sidebar"     
+// 组件应该是分割的 - 相互嵌套可能不是最好实践
+import { Collapsible,CollapsibleContent,CollapsibleTrigger } from "@/components/ui/collapsible";
+import { usePathname } from "next/navigation";
+// next 中 Link组件的使用 
+import Link from 'next/link';
 
-export function Sidebar() { 
+
+export function SidebarBlog() { 
+     // 折叠相关的动态设置- 可控 设置 
+     // const { open, setOpen } = useSidebar();   // 已经设置的数据 
+     // console.log(open)
+     // useEffect(() => {  // 监听数据变化
+     //   console.log(open)
+     //   setOpen(!open)
+     // }, [])
+
+      const projects = [
+           { name: "仪表盘", url: "/dashboard" },
+           { name: "文章管理",url:"/dashboard/articles" }, // 编辑部 
+      ]
+      const pathname = usePathname();
      return (
-      <aside className="w-[200px] flex-none bg-white text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-        <div className="p-3">
-          <h2 className="text-lg font-semibold">Dashboard</h2>
-        </div>
-        <nav className="p-3">
-          <ul className="space-y-1">
-            <li>
-                12313
-            </li>
-          </ul>
-        </nav>
-      </aside>
+      <>
+      {/* 样式设置 - 左侧 - 内嵌 - 可折叠  */}
+           <Sidebar side="left" variant="inset" collapsible="offcanvas"> 
+              <SidebarInset>
+               <SidebarHeader>
+                     <SidebarMenu>
+                         <SidebarMenuItem>
+                              <SidebarMenuButton className="font-bold" >
+                                   Blog Managment
+                              </SidebarMenuButton>
+                         </SidebarMenuItem>
+                    </SidebarMenu>
+               </SidebarHeader>
+               <SidebarContent>
+                    <SidebarGroup>      
+                         <SidebarGroupContent >
+                              <SidebarMenu>
+                              {projects.map((project) => (
+                              <SidebarMenuItem key={project.name}>
+                                   <SidebarMenuButton asChild isActive={project.url === pathname} >
+                                        <Link href={project.url}>
+                                             <span>{project.name}</span>
+                                        </Link>
+                                   </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              ))}
+                           </SidebarMenu> 
+                         </SidebarGroupContent>
+                    </SidebarGroup>
+
+                    {/*  折叠菜单组 */}
+                    <Collapsible defaultOpen className="group/collapsible">
+                    <SidebarGroup>
+                    <SidebarGroupLabel asChild>
+                         <CollapsibleTrigger>
+                         Help
+                         </CollapsibleTrigger>
+                    </SidebarGroupLabel>
+                    <CollapsibleContent>
+                         <SidebarGroupContent >
+                              <SidebarMenu>
+                              {projects.map((project) => (
+                              <SidebarMenuItem key={project.name}>
+                                   <SidebarMenuButton asChild>
+                                        <a href={project.url}>
+                                             <span>{project.name}</span>
+                                        </a>
+                                   </SidebarMenuButton>
+                              </SidebarMenuItem>
+                              ))}
+                           </SidebarMenu> 
+                         </SidebarGroupContent>
+                    </CollapsibleContent>
+                    </SidebarGroup>
+                    </Collapsible>
+               </SidebarContent>
+               <SidebarFooter>
+                    {/* 设置一个按钮 - 可以是 用户信息部分  */}
+                <SidebarMenu>
+                 <SidebarMenuItem>
+                  <SidebarMenuButton>
+                    12312131312
+                  </SidebarMenuButton>
+                 </SidebarMenuItem>
+               </SidebarMenu>
+               </SidebarFooter>
+          </SidebarInset> 
+           </Sidebar>
+      </>
      )
 }

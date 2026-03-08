@@ -116,11 +116,29 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
+
+
+/*  Base Styles -- 重置样式 */
+@layer base {   
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+/*  自定义 工具类  */
+
+/* 在文件末尾添加 */
+@layer utilities {
+
+
+  /* 之前提到的隐藏滚动条 */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
