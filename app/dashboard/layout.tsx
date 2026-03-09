@@ -1,6 +1,6 @@
 import { SidebarBlog } from "@/app/ui/dashboard/sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-
+import { User } from "../ui/dashboard/user";
 export default function OverviewLayout({
   children,
 }: Readonly<{
@@ -10,7 +10,9 @@ export default function OverviewLayout({
     <>
     <section className="h-full flex">
       <SidebarProvider className="w-[250px]" >
-        <SidebarBlog />
+        <SidebarBlog>
+          <User></User>
+        </SidebarBlog>
       </SidebarProvider> 
       {/*  隐藏滚动条 */}
       <main className= "  flex-1 bg-[#fafafa] overflow-y-auto no-scrollbar ">

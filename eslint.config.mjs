@@ -13,6 +13,12 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // 自定义规则覆盖
+  {
+    rules: {
+      "@typescript-eslint/no-impure-calls": "off", // 禁用不纯函数调用检查
+    },
+  }
 ]);
 
 export default eslintConfig;

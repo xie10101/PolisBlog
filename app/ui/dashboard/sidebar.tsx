@@ -10,8 +10,7 @@ import { usePathname } from "next/navigation";
 // next 中 Link组件的使用 
 import Link from 'next/link';
 
-
-export function SidebarBlog() { 
+export function SidebarBlog({children}: Readonly<{children?: React.ReactNode}>) { 
      // 折叠相关的动态设置- 可控 设置 
      // const { open, setOpen } = useSidebar();   // 已经设置的数据 
      // console.log(open)
@@ -87,7 +86,7 @@ export function SidebarBlog() {
                 <SidebarMenu>
                  <SidebarMenuItem>
                   <SidebarMenuButton>
-                    12312131312
+                    {children}
                   </SidebarMenuButton>
                  </SidebarMenuItem>
                </SidebarMenu>
