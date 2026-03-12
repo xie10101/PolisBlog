@@ -1,6 +1,6 @@
-import { SidebarBlog } from "@/app/ui/dashboard/sidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { User } from "../ui/dashboard/user";
+import { SidebarBlog } from '@/app/ui/dashboard/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { User } from '../ui/dashboard/user';
 export default function OverviewLayout({
   children,
 }: Readonly<{
@@ -8,22 +8,20 @@ export default function OverviewLayout({
 }>) {
   return (
     <>
-    <section className="h-full flex">
-      <SidebarProvider className="w-[250px]" >
-        <SidebarBlog>
-          <User></User>
-        </SidebarBlog>
-      </SidebarProvider> 
-      {/*  隐藏滚动条 */}
-      <main className= "  flex-1 bg-[#fafafa] overflow-y-auto no-scrollbar ">
-      {/*  设置阴影  */}
-       <main className=" h-full bg-white rounded-xl flex items-center justify-center m-2 shadow-lg p-4"> 
-             {children}
-            
-       </main>
-      </main>
-    </section>
-
+      <section className="flex h-full">
+        <SidebarProvider className="w-[250px]">
+          <SidebarBlog>
+            <User></User>
+          </SidebarBlog>
+        </SidebarProvider>
+        {/*  隐藏滚动条 */}
+        <main className="no-scrollbar flex-1 overflow-y-auto bg-[#fafafa]">
+          {/*  设置阴影  */}
+          <main className="m-2 flex h-full items-center justify-center rounded-xl bg-white p-4 shadow-lg">
+            {children}
+          </main>
+        </main>
+      </section>
     </>
-  )
+  );
 }

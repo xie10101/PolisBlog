@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 /* shadcn 和tailwindcss 有关联 创建了一些自定义类名  */
 
 @custom-variant dark (&:is(.dark *));
@@ -117,10 +117,8 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-
-
 /*  Base Styles -- 重置样式 */
-@layer base {   
+@layer base {
   * {
     @apply border-border outline-ring/50;
   }
@@ -132,8 +130,6 @@
 
 /* 在文件末尾添加 */
 @layer utilities {
-
-
   /* 之前提到的隐藏滚动条 */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
