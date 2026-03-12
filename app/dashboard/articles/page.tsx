@@ -1,7 +1,10 @@
 export default function Articles() {
   return (
     <>
-      <h2>Articles </h2>
+      <header>
+        <div className="container mx-auto px-4 py-8"></div>
+      </header>
+      <main></main>
     </>
   );
 }
