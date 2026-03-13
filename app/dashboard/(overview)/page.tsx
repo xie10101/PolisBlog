@@ -1,5 +1,5 @@
-"use client";
-import { Button } from "@/components/ui/button";
+'use client';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardHeader,
@@ -7,7 +7,7 @@ import {
   CardAction,
   CardContent,
   CardFooter,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
 import {
   Table,
@@ -18,50 +18,50 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
 const invoices = [
   {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    totalAmount: "$250.00",
-    paymentMethod: "Credit Card",
+    invoice: 'INV001',
+    paymentStatus: 'Paid',
+    totalAmount: '$250.00',
+    paymentMethod: 'Credit Card',
   },
   {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    totalAmount: "$150.00",
-    paymentMethod: "PayPal",
+    invoice: 'INV002',
+    paymentStatus: 'Pending',
+    totalAmount: '$150.00',
+    paymentMethod: 'PayPal',
   },
   {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "$350.00",
-    paymentMethod: "Bank Transfer",
+    invoice: 'INV003',
+    paymentStatus: 'Unpaid',
+    totalAmount: '$350.00',
+    paymentMethod: 'Bank Transfer',
   },
   {
-    invoice: "INV004",
-    paymentStatus: "Paid",
-    totalAmount: "$450.00",
-    paymentMethod: "Credit Card",
+    invoice: 'INV004',
+    paymentStatus: 'Paid',
+    totalAmount: '$450.00',
+    paymentMethod: 'Credit Card',
   },
   {
-    invoice: "INV005",
-    paymentStatus: "Paid",
-    totalAmount: "$550.00",
-    paymentMethod: "PayPal",
+    invoice: 'INV005',
+    paymentStatus: 'Paid',
+    totalAmount: '$550.00',
+    paymentMethod: 'PayPal',
   },
   {
-    invoice: "INV006",
-    paymentStatus: "Pending",
-    totalAmount: "$200.00",
-    paymentMethod: "Bank Transfer",
+    invoice: 'INV006',
+    paymentStatus: 'Pending',
+    totalAmount: '$200.00',
+    paymentMethod: 'Bank Transfer',
   },
   {
-    invoice: "INV007",
-    paymentStatus: "Unpaid",
-    totalAmount: "$300.00",
-    paymentMethod: "Credit Card",
+    invoice: 'INV007',
+    paymentStatus: 'Unpaid',
+    totalAmount: '$300.00',
+    paymentMethod: 'Credit Card',
   },
 ];
 
@@ -85,21 +85,6 @@ export default function Overview() {
   return (
     <>
       <div className="flex h-full w-full flex-col gap-4">
-        {/* Dashboard Header --  */}
-        <header className="flex flex-row items-center justify-between">
-          {/*icon 的使用 或者 自定义 svg插入  */}
-          {/* 折叠侧边栏按钮 */}
-          <Button variant="outline" className="fl">
-            折叠
-          </Button>
-          {/* 图标按钮  */}
-          <div className="flex flex-1 flex-row items-center justify-end">
-            {/* 喜欢-  */}
-            <Button>喜欢</Button>
-            {/* 后台消息接收  */}
-            <Button>消息</Button>
-          </div>
-        </header>
         <main className="flex flex-1 flex-col gap-6">
           <header className="relative flex flex-row">
             <div className="flex flex-col">
@@ -156,11 +141,11 @@ export default function Overview() {
               <CardHeader>
                 <div>
                   <p className="text-lg font-bold">
-                    {" "}
+                    {' '}
                     Recently Published Articles
                   </p>
                   <p className="text-sm text-gray-500">
-                    {" "}
+                    {' '}
                     Latest articles from your blog
                   </p>
                 </div>
@@ -176,7 +161,7 @@ export default function Overview() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {invoices.map((invoice) => (
+                      {invoices.map(invoice => (
                         <TableRow key={invoice.invoice}>
                           <TableCell className="font-medium">
                             {invoice.invoice}
@@ -219,7 +204,7 @@ export default function Overview() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {invoices.map((invoice) => (
+                      {invoices.map(invoice => (
                         <TableRow key={invoice.invoice}>
                           <TableCell className="font-medium">
                             {invoice.invoice}
