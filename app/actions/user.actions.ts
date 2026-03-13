@@ -1,0 +1,5 @@
+//  -- 有关 用户 模块的 服务器端- controller 部分  逻辑
+import { UserRepository } from '@/lib/modules/post/server';
+export async function getUser() {
+  return await UserRepository.findAll();
+}

@@ -6,7 +6,7 @@ config({ path: '.env.local' });
 
 // drizzle的配置文件
 export default defineConfig({
-  schema: ['./lib/modules/index.ts'],
+  schema: ['./lib/modules/post/schema.ts', './lib/modules/user/schema.ts'],
   // 含义: 指定数据库 schema 定义文件的位置
   out: './lib/db/migrations',
   // 含义: 指定生成的迁移文件的输出目录
