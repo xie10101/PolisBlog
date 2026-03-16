@@ -27,7 +27,7 @@
       .references(() => users.id, { onDelete: 'restrict' }),
 */
 import { PostRepository } from '../modules/post/server.ts';
-//   问题 
+//   问题
 
 const MOCK_AUTHOR_ID = '550e8400-e29b-41d4-a716-446655440000';
 
@@ -39,11 +39,12 @@ export const MOCK_POSTS = [
     excerpt: '探索 Next.js 15 中 RSC 的核心原理与性能优势。',
     content: '这里是文章的 Markdown 正文内容...',
     htmlContent: '<div>这里是解析后的 HTML 内容...</div>',
-    coverImage: 'https://picsum.photos/seed/post1/800/400',
+    coverImage:
+      'https://raw.githubusercontent.com/xie10101/IMG-_Bed/main/imgs/20260315233353402.jpg',
     status: 'published', // 发布状态
     viewCount: 1250,
     wordCount: 3500,
-    readTime: 12,
+    readTime: 12, //预计阅读时间
     isTop: true, // 置顶
     sortOrder: 1,
     publishedAt: new Date('2024-03-10T10:00:00Z'),
@@ -59,7 +60,8 @@ export const MOCK_POSTS = [
     excerpt: '为什么说 Drizzle 是目前最适合 Next.js 的 ORM？',
     content: 'Drizzle ORM 提供了极佳的类型推导体验...',
     htmlContent: '<p>Drizzle ORM 提供了极佳的类型推导体验...</p>',
-    coverImage: 'https://picsum.photos/seed/post2/800/400',
+    coverImage:
+      'https://raw.githubusercontent.com/xie10101/IMG-_Bed/main/imgs/20260315233343252.jpg',
     status: 'draft', // 草稿状态
     viewCount: 0,
     wordCount: 1200,
@@ -94,6 +96,9 @@ export const MOCK_POSTS = [
   },
 ];
 
-const { create } = PostRepository;
+const { create, updateImageUrl } = PostRepository;
 //  单一对象 insert
-MOCK_POSTS.forEach(post => create(post));
+// MOCK_POSTS.forEach(post => create(post));
+
+// 批量 更新
+MOCK_POSTS.forEach(post => updateImageUrl(post.id, post.coverImage || ''));

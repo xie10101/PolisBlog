@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import Image from 'next/image';
 import {
@@ -15,10 +14,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { MoreHorizontal, Search, PlusCircle } from 'lucide-react';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
@@ -44,67 +42,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
+import { useState, useEffect } from 'react';
+import { fetchAllPosts } from '@/app/actions/post.actions';
+import { mapPostDBToUI } from '@/utils/map';
 // mock 数据
-const data: Article[] = [
-  {
-    id: 'm5gr84i9',
-    title: 'Getting Started with React Hooks',
-    imageUrl: '/file.svg', // Replace with actual image paths
-    category: 'Frontend',
-    tags: ['React', 'JavaScript', 'Hooks'],
-    status: 'Published',
-    publishTime: 'Jan 15, 2024, 06:30 PM',
-    views: 1250,
-  },
-  {
-    id: '3u1reuv4',
-    title: 'Advanced TypeScript Patterns',
-    imageUrl: '/file.svg',
-    category: 'Backend',
-    tags: ['TypeScript', 'Patterns', 'Advanced'],
-    status: 'Draft',
-    publishTime: 'Jan 14, 2024, 10:20 PM',
-    views: 890,
-  },
-  {
-    id: 'derv1ws0',
-    title: 'Building Scalable Web Applications',
-    imageUrl: '/file.svg',
-    category: 'Architecture',
-    tags: ['Scalability', 'Web Apps', 'Performance'],
-    status: 'Scheduled',
-    publishTime: 'Jan 20, 2024, 05:00 PM',
-    views: 0,
-  },
-  {
-    id: '5kma53ae',
-    title: 'CSS Grid vs Flexbox: When to Use What',
-    imageUrl: '/file.svg',
-    category: 'Frontend',
-    tags: ['CSS', 'Grid', 'Flexbox'],
-    status: 'Published',
-    publishTime: 'Jan 13, 2024, 12:45 AM',
-    views: 1650,
-  },
-  {
-    id: 'bhqecj4p',
-    title: 'Introduction to Machine Learning',
-    imageUrl: '/file.svg',
-    category: 'AI/ML',
-    tags: ['Machine Learning', 'AI', 'Python'],
-    status: 'Published',
-    publishTime: 'Jan 11, 2024, 07:15 PM',
-    views: 2100,
-  },
-];
 
 export type Article = {
   id: string;
   title: string;
   imageUrl: string;
   category: string;
-  tags: string[];
+  // tags: string[];
   status: 'Published' | 'Draft' | 'Scheduled';
   publishTime: string;
   views: number;
@@ -142,18 +90,25 @@ export const columns: ColumnDef<Article>[] = [
     header: 'Article Title',
     cell: ({ row }) => (
       <div className="flex items-center gap-4">
-        <Image
-          src={row.original.imageUrl}
-          alt={row.original.title}
-          width={40}
-          height={40}
-          className="h-10 w-10 rounded-md object-cover"
-          //  错误处理 -- 的目标地址？？
-          onError={e => {
-            // Fallback for broken images
-            e.currentTarget.src = 'https://via.placeholder.com/40';
-          }}
-        />
+        {
+          <Image
+            src={row.original.imageUrl}
+            alt="article image"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-md object-cover"
+            //  错误处理 -- 的目标地址？？
+            onError={() => (
+              <Image
+                src="/file.svg"
+                alt="placeholder image"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-md object-cover"
+              />
+            )}
+          />
+        }
         <span className="font-medium">{row.getValue('title')}</span>
       </div>
     ),
@@ -162,20 +117,20 @@ export const columns: ColumnDef<Article>[] = [
     accessorKey: 'category',
     header: 'Category',
   },
-  {
-    accessorKey: 'tags',
-    header: 'Tags',
-    cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1">
-        {row.original.tags.map(tag => (
-          // 组件属性待了解
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: 'tags',
+  //   header: 'Tags',
+  //   cell: ({ row }) => (
+  //     <div className="flex flex-wrap gap-1">
+  //       {row.original.tags.map(tag => (
+  //         // 组件属性待了解
+  //         <Badge key={tag} variant="secondary">
+  //           {tag}
+  //         </Badge>
+  //       ))}
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: 'status',
     header: 'Status',
@@ -245,13 +200,31 @@ export default function ArticlesPage() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+  // 2. 初始化状态，默认可以给个空数组或之前的 mock 数据作为初始值
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 3. 使用 useEffect 获取真实数据
+  useEffect(() => {
+    const loadData = async () => {
+      const result = await fetchAllPosts();
+      if (result.success) {
+        // 注意：这里需要确保数据库返回的字段与 Article 类型匹配
+        // 如果不匹配，需要在这里进行 map 转换
+        // 需要做map 映射处理 ：
+        setArticles(result?.data?.map(mapPostDBToUI) || []);
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, []);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   // 了解是中怎样的处理方式
   const table = useReactTable({
-    data,
+    data: articles,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -268,9 +241,6 @@ export default function ArticlesPage() {
       rowSelection,
     },
   });
-
-  // console.log(table.getRowModel().rows); // 行的数组
-  // console.log(table.getRowModel().flatRows); // 行的数组，但所有子行被展平到顶层
 
   return (
     <div className="w-full p-4 md:p-8">

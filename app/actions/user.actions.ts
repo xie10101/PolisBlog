@@ -1,5 +1,7 @@
+'use server';
 //  -- 有关 用户 模块的 服务器端- controller 部分  逻辑
-import { UserRepository } from '@/lib/modules/post/server';
+import UserRepository from '@/lib/modules/user/server';
+
 export async function getUser() {
-  return await UserRepository.findAll();
+  return await UserRepository.getUsers();
 }

@@ -66,3 +66,4 @@ const MOCK_USERS = [
 ];
 
 MOCK_USERS.forEach(user => UserRepository.insertUser(user));
+//  执行下 - 图片更新操作 ：
