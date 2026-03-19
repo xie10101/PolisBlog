@@ -38,6 +38,7 @@ export function SidebarBlog({
   const projects = [
     { name: '仪表盘', url: '/dashboard' },
     { name: '文章管理', url: '/dashboard/articles' }, // 编辑部
+    { name: '文章编辑器', url: '/dashboard/post_editor' }, // 分类管理
   ];
   const pathname = usePathname();
   return (
