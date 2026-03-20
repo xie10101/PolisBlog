@@ -7,7 +7,8 @@ import dynamic from 'next/dynamic';
 // const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
 export default function PostEditorPage() {
   const [value, setValue] = React.useState('');
-  document.documentElement.setAttribute('data-color-mode', 'light');
+   // -- 主题的改变 ? 
+  // document.documentElement.setAttribute('data-color-mode', 'light');
   return (
     <div>
       <MDEditor

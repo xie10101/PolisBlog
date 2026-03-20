@@ -31,6 +31,6 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "app/actions/user.actions.ts"
-  ],
+, "app/Blog/layout.tsx"  ],
   "exclude": ["node_modules"]
 }
