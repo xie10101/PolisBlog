@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faUser, faSearch } from '@fortawesome/free-solid-svg-icons';
 import Link from 'next/link';
-import SearchModal from '@/ui/Modal/SearchModal';
+import SearchModal from '@/app/ui/front/Modal/SearchModal';
 import { useState } from 'react';
 const TopNavs = () => {
   const router = useRouter();

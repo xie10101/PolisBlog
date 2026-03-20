@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import DrawerNoMask from '@/ui/Drawer/DrawerNoMask';
+import DrawerNoMask from '@/app/ui/front/Drawer/DrawerNoMask';
 import Statistics from './Statistics';
 import { Calendar } from '@/app/components/ui/calendar';
 import { da } from 'date-fns/locale';
