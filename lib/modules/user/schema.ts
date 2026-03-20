@@ -34,4 +34,5 @@ const users = pgTable(
   ],
 );
 
+
 export default users;
