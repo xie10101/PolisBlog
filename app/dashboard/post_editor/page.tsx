@@ -1,13 +1,14 @@
 'use client';
 import React from 'react';
-import MDEditor from '@uiw/react-md-editor';
 import dynamic from 'next/dynamic';
-
-//具体作用 ？
-// const MDEditor = dynamic(() => import('@uiw/react-md-editor'), { ssr: false });
+// 组件懒加载和渲染方式的设置 
+const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
+  ssr: false,
+  loading: () => <div>Loading...</div>,
+});
 export default function PostEditorPage() {
   const [value, setValue] = React.useState('');
-   // -- 主题的改变 ? 
+  // -- 主题的改变 ?
   // document.documentElement.setAttribute('data-color-mode', 'light');
   return (
     <div>

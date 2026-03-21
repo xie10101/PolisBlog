@@ -19,3 +19,5 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+// 出于安全考虑，Next.js 要求你必须显式列出允许通过 <Image /> 组件加载的外部图片域名。出于安全考虑，Next.js 要求你必须显式列出允许通过 <Image /> 组件加载的外部图片域名。
