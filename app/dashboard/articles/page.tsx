@@ -287,7 +287,7 @@ export default function ArticlesPage() {
                 <SelectItem value="Scheduled">Scheduled</SelectItem>
               </SelectContent>
             </Select>
-            <Select>
+            {/* <Select>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
@@ -298,7 +298,7 @@ export default function ArticlesPage() {
                 <SelectItem value="Architecture">Architecture</SelectItem>
                 <SelectItem value="AI/ML">AI/ML</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
           </div>
         </CardHeader>
         <CardContent>

@@ -7,7 +7,6 @@ import { PostRepository } from '@/lib/modules/post/server';
 export async function GET(request: Request) {
   try {
     const posts = await PostRepository.findAll();
-
     // 使用 NextResponse.json 来返回 JSON 数据
     return NextResponse.json({ success: true, data: posts });
   } catch (error) {
