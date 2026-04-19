@@ -4,11 +4,22 @@ import { User } from '../ui/dashboard/user';
 import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, AlignLeftIcon } from 'lucide-react';
 
+/**
+ * 概览页面布局组件
+ *
+ * 提供包含侧边栏和主内容区域的布局结构，适用于仪表盘或概览类页面。
+ * 左侧为固定宽度的博客侧边栏（包含用户信息），右侧为可滚动的主内容区域。
+ *
+ * @param children - 要在主内容区域中渲染的子组件
+ *
+ * @returns 包含侧边栏和主内容区域的布局结构
+ */
 export default function OverviewLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <>
       <section className="flex h-full">

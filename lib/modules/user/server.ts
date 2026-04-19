@@ -6,6 +6,11 @@ const UserRepository = {
     const data = await db.select().from(users);
     return data;
   },
+  // 获取第一个用户信息 ：
+  async getFirstUser() {
+    const data = await db.select().from(users).limit(1);
+    return data;
+  },
   // 插入操作 ：
   async insertUser(user: typeof users.$inferInsert) {
     const data = await db.insert(users).values(user);

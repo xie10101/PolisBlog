@@ -45,6 +45,8 @@ import {
 import { useState, useEffect } from 'react';
 import { fetchAllPosts } from '@/app/actions/post.actions';
 import { mapPostDBToUI } from '@/utils/map';
+// import { getFirstUser } from '../../actions/user.actions';
+// import useUserInfoStore from '@/store/user';
 // mock 数据
 
 export type Article = {
@@ -196,6 +198,21 @@ export const columns: ColumnDef<Article>[] = [
 
 // Main Component
 export default function ArticlesPage() {
+  //简单处理
+  // const setInfo = useUserInfoStore(state => state.setInfo);
+  // const userInfo = getFirstUser().then(res => {
+  //   const first = res[0];
+
+  //   const userInfo = {
+  //     id: first.id,
+  //     email: first.email,
+  //     avatar: first.avatar,
+  //     username: first.username,
+  //     bio: first.bio,
+  //   };
+  //   setInfo(userInfo);
+  // });
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],

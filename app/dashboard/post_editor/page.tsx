@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -19,9 +18,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { zhCN } from 'zod/locales';
+import { uploadPost } from '@/app/actions/post.actions';
+import dayjs from 'dayjs';
+import useUserInfoStore from '@/store/user';
 
-z.config(zhCN());
 // 组件懒加载和渲染方式的设置
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
   ssr: false,
@@ -35,7 +35,6 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 });
 
 //  zod 创建表单验证 ：
-
 const PostFormDataSchema = z.object({
   title: z
     .string()
@@ -49,7 +48,7 @@ const PostFormDataSchema = z.object({
     .string()
     .min(15, '摘要不能少于15字')
     .max(200, '摘要长度不能超过 200 个字符'),
-  coverImage: z.string().min(1, '封面图不能为空').url('封面图必须是有效的 URL'),
+  coverImage: z.string().min(1, '封面图不能为空'),
 });
 
 type PostFormData = z.infer<typeof PostFormDataSchema>;
@@ -57,15 +56,14 @@ type PostFormData = z.infer<typeof PostFormDataSchema>;
 export default function PostEditorPage() {
   const [content, setContent] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const id = useUserInfoStore(state => state.id);
   const {
     register,
-    handleSubmit,
     formState: { errors, isSubmitting },
     setError,
+    handleSubmit,
   } = useForm<PostFormData>({
     defaultValues: {},
-    // resolver: zodResolver(),
   });
   // 编辑器主题的设置
   useEffect(() => {
@@ -76,8 +74,6 @@ export default function PostEditorPage() {
   const handleContentChange = (value: string | undefined) => {
     const md = value || '';
     setContent(md);
-    // 保存原始 markdown 内容
-    // setFormData(prev => ({ ...prev, content: md }));
   };
 
   // 生成 slug (从标题)
@@ -90,34 +86,30 @@ export default function PostEditorPage() {
   };
   const previewRef = useRef<HTMLDivElement>(null);
   // 发布文章
-  const handlePublish = async data => {
+  async function handlePublish(data: PostFormData) {
+    const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
+    const slug = generateSlug(data.title || '');
+    console.log(id);
     const postData = {
       ...data,
+      content: contentHtml,
+      slug,
+      publishedAt: new Date(),
+      authorId: id,
     };
-
-    setIsDialogOpen(false);
-  };
-
+    try {
+      const res = await uploadPost(postData);
+      console.log(res);
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error('发布文章失败:', error);
+    }
+  }
   //  获取内部Html内容
   function extractInnerHtml(html: string): string {
     const match = html.match(/<div[^>]*>([\s\S]*?)<\/div>/);
     return match ? match[1] : html;
   }
-
-  // 当打开对话框时更新 获取到的 Html的内容 ：
-
-  // 保存草稿
-  const handleSaveDraft = () => {
-    const draftData = {
-      ...formData,
-      content,
-      status: 'draft' as const,
-    };
-    console.log('保存草稿:', draftData);
-    // TODO: 调用 API 保存草稿
-  };
-
-  // 表单数据处理
 
   return (
     <div className="flex h-[calc(100vh-120px)] flex-col gap-4">
@@ -127,9 +119,7 @@ export default function PostEditorPage() {
           <Link href="/dashboard/drafts">草稿箱</Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSaveDraft}>
-            保存草稿
-          </Button>
+          <Button variant="outline">保存草稿</Button>
           <Button onClick={() => setIsDialogOpen(true)}>发布</Button>
         </div>
       </div>
@@ -167,6 +157,9 @@ export default function PostEditorPage() {
                   placeholder="输入文章标题"
                   {...register('title')}
                 />
+                {errors.title && (
+                  <span className="error-message">{errors.title.message}</span>
+                )}
               </div>
 
               {/* 摘要 */}
@@ -177,6 +170,11 @@ export default function PostEditorPage() {
                   {...register('excerpt')}
                   rows={3}
                 />
+                {errors.excerpt && (
+                  <span className="error-message">
+                    {errors.excerpt.message}
+                  </span>
+                )}
               </div>
 
               {/* 封面图 */}
@@ -187,6 +185,11 @@ export default function PostEditorPage() {
                   placeholder="输入封面图片地址（可选）"
                   {...register('coverImage')}
                 />
+                {errors.coverImage && (
+                  <span className="error-message">
+                    {errors.coverImage.message}
+                  </span>
+                )}
               </div>
 
               {/* 内容预览 -- 该数据的处理1. 因为转换时内容逻辑执行的所以验证可以自定义处理  */}
@@ -212,11 +215,12 @@ export default function PostEditorPage() {
               <Button variant="outline">取消</Button>
             </DialogClose>
             <Button
+              disabled={isSubmitting}
               onClick={() => {
                 handleSubmit(handlePublish)();
               }}
             >
-              确认发布
+              {isSubmitting ? '...发布中' : ' 确认发布'}
             </Button>
           </DialogFooter>
         </DialogContent>

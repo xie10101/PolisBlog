@@ -12,8 +12,7 @@ export const PostRepository = {
   //   创建post ——数据插入操作
 
   async create(post: typeof posts.$inferInsert) {
-    //  $inferInsert 类型介绍 ： typeof posts.$inferInsert 是一种非常强大且优雅的类型推导方式。
-    // 它能自动从你的数据库表定义中推导出 用于插入数据时的 TypeScript 类型
+    //  $inferInsert 类型介绍 ： 它能自动从你的数据库表定义中推导出 用于插入数据时的 TypeScript 类型
     return await db.insert(posts).values(post);
   },
 
