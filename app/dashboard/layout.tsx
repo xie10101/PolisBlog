@@ -2,6 +2,7 @@ import { SidebarBlog } from '@/app/ui/dashboard/sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { User } from '../ui/dashboard/user';
 import { Button } from '@/components/ui/button';
+import { Heart, MessageCircle, AlignLeftIcon } from 'lucide-react';
 
 export default function OverviewLayout({
   children,
@@ -22,11 +23,15 @@ export default function OverviewLayout({
             <header className="mb-6 flex flex-row items-center justify-between border-b-1 p-4">
               {/* 使用奇怪各自模型- border ， padding 置于宽度中 便于处理   */}
               <Button variant="outline" className="fl">
-                折叠
+                <AlignLeftIcon className="h-4 w-4" />
               </Button>
               <div className="flex flex-1 flex-row items-center justify-end gap-2">
-                <Button>喜欢</Button>
-                <Button>消息</Button>
+                <Button>
+                  <Heart className="h-4 w-4" />
+                </Button>
+                <Button>
+                  <MessageCircle className="h-4 w-4" />
+                </Button>
               </div>
             </header>
             <div className="p-4">{children}</div>
