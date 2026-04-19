@@ -95,7 +95,7 @@ export default function PostEditorPage() {
       content: contentHtml,
       slug,
       publishedAt: new Date(),
-      authorId: id,
+      authorId: id as string,
     };
     try {
       const res = await uploadPost(postData);

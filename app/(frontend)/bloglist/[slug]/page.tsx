@@ -1,9 +1,9 @@
 //  以上获取分页后的博客列表数
 
-import { getPaginatedPosts } from '../../../lib/posts';
-import { getTotalNum } from '../../../lib/posts';
+import { getPaginatedPosts } from '@/lib/posts';
+import { getTotalNum } from '@/lib/posts';
 import { notFound } from 'next/navigation';
-import { getPost } from '../../../lib/posts';
+import { getPost } from '@/lib/posts';
 import Brief from '@/app/components/Blog/brief';
 import Pagination from '@/app/components/pagination';
 export async function generateStaticParams() {
