@@ -24,7 +24,7 @@ export default async function Post({
   const { meta, htmlContent } = await getPost(slug);
   return (
     <Suspense fallback={<div>加载中...</div>}>
-      <Article slug={slug} meta={meta} htmlContent={htmlContent} />
+      {/* <Article slug={slug} meta={meta} htmlContent={htmlContent} /> */}
     </Suspense>
   );
 }

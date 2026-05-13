@@ -2,7 +2,7 @@
 // 主要是 orm 操作；
 
 import { db } from '@/lib/db.ts';
-import posts from './schema.ts';
+import posts from './post.schema.ts';
 //  可以封装多个仓库进行处理
 import { eq } from 'drizzle-orm';
 export const PostRepository = {

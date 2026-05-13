@@ -1,4 +1,5 @@
 import {
+  pgEnum,
   pgTable,
   integer,
   boolean,
@@ -9,7 +10,16 @@ import {
   uuid,
   index,
 } from 'drizzle-orm/pg-core';
-import users from '../user/schema';
+import users from '../user/user.schema';
+
+//  枚举类型名称post_status 
+export const postStatusEnum = pgEnum('post_status', [
+  'draft',
+  'pending',
+  'published',
+  'trash',
+]);
+
 const posts = pgTable(
   'posts',
   {
@@ -27,7 +37,7 @@ const posts = pgTable(
     coverImage: varchar('cover_image', { length: 500 }),
 
     // 状态
-    status: varchar('status', { length: 20 }).default('draft'),
+    status: postStatusEnum('status').default('draft'),
     // 可设置状态:草稿"、"待审核"、"发布"、"回收站"
 
     // 统计

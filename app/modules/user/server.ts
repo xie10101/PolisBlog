@@ -1,5 +1,5 @@
 import { db } from '@/lib/db.ts';
-import users from './schema.ts';
+import users from './user.schema.ts';
 
 const UserRepository = {
   async getUsers() {

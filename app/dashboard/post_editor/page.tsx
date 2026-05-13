@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { uploadPost } from '@/app/actions/post.actions';
+import { uploadPost } from '@/app/modules/post/post.actions';
 import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
 
@@ -89,7 +89,6 @@ export default function PostEditorPage() {
   async function handlePublish(data: PostFormData) {
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
-    console.log(id);
     const postData = {
       ...data,
       content: contentHtml,

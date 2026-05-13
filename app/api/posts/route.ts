@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PostRepository } from '@/lib/modules/post/server';
+import { PostRepository } from '@/app/modules/post/post.server';
 
 /**
  * 处理 GET 请求，获取所有文章

@@ -26,7 +26,7 @@
       .notNull()
       .references(() => users.id, { onDelete: 'restrict' }),
 */
-import { PostRepository } from '../modules/post/server.ts';
+import { PostRepository } from '../../app/modules/post/post.server.ts';
 //   问题
 
 const MOCK_AUTHOR_ID = '550e8400-e29b-41d4-a716-446655440000';

@@ -21,8 +21,8 @@
          updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
        },
 */
-import UserRepository from '@/lib/modules/user/server.ts';  
-// 模拟用户数据 
+import UserRepository from '@/app/modules/user/server';
+// 模拟用户数据
 const MOCK_USERS = [
   {
     id: '550e8400-e29b-41d4-a716-446655440000',

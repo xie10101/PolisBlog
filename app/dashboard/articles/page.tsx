@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
-import { fetchAllPosts } from '@/app/actions/post.actions';
+import { fetchAllPosts } from '@/app/modules/post/post.actions';
 import { mapPostDBToUI } from '@/utils/map';
 // import { getFirstUser } from '../../actions/user.actions';
 // import useUserInfoStore from '@/store/user';

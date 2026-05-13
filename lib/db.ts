@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
-import { schema } from './modules';
+import { schema } from '../app/modules';
 import { config } from 'dotenv';
 // 加载环境变量
 config({ path: '.env.local' });

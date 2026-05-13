@@ -1,5 +1,7 @@
 'use server';
-import { PostRepository } from '@/lib/modules/post/server';
+// controller 层
+import { PostRepository } from '@/app/modules/post/post.server';
+import { CreatePostDto } from '@/app/modules/post/dto/post-create.dto';
 export async function fetchAllPosts() {
   try {
     const posts = await PostRepository.findAll();
@@ -50,5 +52,16 @@ export async function uploadPost(post: {
   } catch (error) {
     console.log(error);
     return { success: false, error: '发布失败' };
+  }
+}
+
+// 创建post :
+
+export async function createPost(post: CreatePostDto) {
+  try {
+    const result = await PostRepository.create(post);
+    return { success: true, data: result };
+  } catch (error) {
+    return { success: false, error: '创建文章失败' };
   }
 }
