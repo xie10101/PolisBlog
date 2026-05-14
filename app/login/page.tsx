@@ -1,10 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import {
   Card,
   CardContent,
@@ -16,23 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SubmitHandler } from 'react-hook-form';
 import { LoginDto, LoginSchema } from '../modules/user/dto/login.dto';
-
+import { signIn } from '../modules/auth';
+import { AuthError } from 'next-auth';
 const LoginPage = () => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onSubmit: SubmitHandler<LoginDto> = async data => {
-    // // 模拟异步提交
-    console.log(data);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('表单提交:', data);
-      throw new Error('邮箱错误'); // 这个错误是会在input 提交是改变的
-    } catch (error: any) {
-      setError('root', { message: error.message });
-    }
-  };
-
   const {
     register,
     handleSubmit,
@@ -40,12 +25,31 @@ const LoginPage = () => {
     formState: { errors, isSubmitting },
     setError,
   } = useForm<LoginDto>({
+    // useForm 方法是一个多重封装高效架构的函数钩子
     defaultValues: {
       username: '',
       password: '',
     },
     resolver: zodResolver(LoginSchema),
   });
+  // 非必选配置 useActionstate -类似 useReducer  连接 action ?
+
+  const onSubmit: SubmitHandler<LoginDto> = async data => {
+    try {
+      const test = await signIn('credentials', data);
+      console.log(test);
+    } catch (error) {
+      // 如果登录失败
+      if (error) {
+        // 把错误设置到表单里 → 页面会显示
+        setError('root', {
+          message: '账号或密码错误，请重试',
+        });
+      }
+    }
+  };
+
+  //   react-hook-form 中 如何处理 setErrors
 
   return (
     <div className="flex h-screen w-full items-center justify-center">

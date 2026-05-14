@@ -1,10 +1,20 @@
 import { db } from '@/lib/db.ts';
 import users from './user.schema.ts';
-
+import { eq } from 'drizzle-orm';
 const UserRepository = {
   async getUsers() {
     const data = await db.select().from(users);
     return data;
+  },
+  // 获取对应用户名的用户信息 -- 用户名不具有唯一性吗
+
+  async getUserByName(username: string) {
+    const data = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username))
+      .limit(1);
+    return data[0];
   },
   // 获取第一个用户信息 ：
   async getFirstUser() {

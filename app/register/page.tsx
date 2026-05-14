@@ -35,13 +35,13 @@ export default function RegisterPage() {
 
   const onSubmit: SubmitHandler<registerDto> = async data => {
     console.log(data);
+    // 提炼实际表单值 ：
+    const { confirmPassword, ...formData } = data;
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('表单提交:', data);
-      throw new Error('邮箱错误');
+      const result = await registerUser(undefined, formData);
     } catch (error) {
       setError('root', {
-        message: error instanceof Error ? error.message : '发生错误',
+        message: error instanceof Error ? error.message : '注册错误',
       });
     }
   };
@@ -69,8 +69,6 @@ export default function RegisterPage() {
             {errors.username && (
               <span className="errorMessage">{errors.username.message}</span>
             )}
-            {/* </div> */}
-
             {/* Email 字段 */}
             <div className="formGroup">
               <label htmlFor="email" className="text-sm font-medium">
