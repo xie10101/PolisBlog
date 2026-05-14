@@ -1,0 +1,745 @@
+'use client';
+
+import * as React from 'react';
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  MoreHorizontal,
+  Search,
+  PlusCircle,
+  Pencil,
+  Trash2,
+  FolderOpen,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { useState, useEffect } from 'react';
+import {
+  getAllCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from '@/app/modules/category/category.actions';
+import { CreateCategoryDto } from '@/app/modules/category/dto/category-create.dto';
+import { UpdateCategoryDto } from '@/app/modules/category/dto/category-update.dto';
+
+export type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  status: 'active' | 'inactive';
+  sortOrder: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export const columns: ColumnDef<Category>[] = [
+  {
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={value => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: 'name',
+    header: 'Category Name',
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <FolderOpen className="h-4 w-4 text-muted-foreground" />
+        <span className="font-medium">{row.getValue('name')}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'slug',
+    header: 'Slug',
+    cell: ({ row }) => (
+      <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+        {row.getValue('slug')}
+      </code>
+    ),
+  },
+  {
+    accessorKey: 'description',
+    header: 'Description',
+    cell: ({ row }) => {
+      const description = row.getValue('description') as string | null;
+      return (
+        <span className="text-muted-foreground line-clamp-1 max-w-[200px]">
+          {description || '-'}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const status = row.getValue('status') as string;
+      return (
+        <Badge variant={status === 'active' ? 'default' : 'secondary'}>
+          {status === 'active' ? 'Active' : 'Inactive'}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: 'sortOrder',
+    header: 'Sort Order',
+    cell: ({ row }) => (
+      <div className="text-right font-medium">{row.getValue('sortOrder')}</div>
+    ),
+  },
+  {
+    id: 'actions',
+    header: 'Operations',
+    cell: ({ row }) => {
+      const category = row.original;
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => row.table.options.meta?.onEdit?.(category)}>
+              <Pencil className="mr-2 h-4 w-4" />
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => row.table.options.meta?.onDelete?.(category)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];
+
+export default function CategoriesPage() {
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  // Dialog states
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+
+  // Form states
+  const [formData, setFormData] = useState<Partial<CreateCategoryDto>>({
+    name: '',
+    slug: '',
+    description: '',
+    status: 'active',
+    sortOrder: 0,
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadCategories = async () => {
+    setLoading(true);
+    const result = await getAllCategories();
+    if (result.success) {
+      setCategories(result.data as Category[]);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const handleCreate = async () => {
+    setFormErrors({});
+    setIsSubmitting(true);
+
+    const result = await createCategory(formData as CreateCategoryDto);
+
+    if (result.success) {
+      setIsCreateDialogOpen(false);
+      resetForm();
+      await loadCategories();
+    } else {
+      if (result.details) {
+        const errors: Record<string, string> = {};
+        Object.entries(result.details).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            errors[key] = value[0];
+          }
+        });
+        setFormErrors(errors);
+      }
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleUpdate = async () => {
+    if (!selectedCategory) return;
+
+    setFormErrors({});
+    setIsSubmitting(true);
+
+    const result = await updateCategory({
+      id: selectedCategory.id,
+      ...formData,
+    } as UpdateCategoryDto);
+
+    if (result.success) {
+      setIsEditDialogOpen(false);
+      setSelectedCategory(null);
+      resetForm();
+      await loadCategories();
+    } else {
+      if (result.details) {
+        const errors: Record<string, string> = {};
+        Object.entries(result.details).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            errors[key] = value[0];
+          }
+        });
+        setFormErrors(errors);
+      }
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedCategory) return;
+
+    setIsSubmitting(true);
+    const result = await deleteCategory(selectedCategory.id);
+
+    if (result.success) {
+      setIsDeleteDialogOpen(false);
+      setSelectedCategory(null);
+      await loadCategories();
+    }
+    setIsSubmitting(false);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      slug: '',
+      description: '',
+      status: 'active',
+      sortOrder: 0,
+    });
+    setFormErrors({});
+  };
+
+  const openEditDialog = (category: Category) => {
+    setSelectedCategory(category);
+    setFormData({
+      name: category.name,
+      slug: category.slug,
+      description: category.description || '',
+      status: category.status,
+      sortOrder: category.sortOrder,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const openDeleteDialog = (category: Category) => {
+    setSelectedCategory(category);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .substring(0, 100);
+  };
+
+  const table = useReactTable({
+    data: categories,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    meta: {
+      onEdit: openEditDialog,
+      onDelete: openDeleteDialog,
+    },
+  });
+
+  return (
+    <div className="w-full p-4 md:p-8">
+      <header className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Categories</h1>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="mr-2 h-4 w-4" /> Add New Category
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Create Category</DialogTitle>
+              <DialogDescription>
+                Add a new category to organize your articles.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={e => {
+                    const name = e.target.value;
+                    setFormData(prev => ({
+                      ...prev,
+                      name,
+                      slug: prev.slug || generateSlug(name),
+                    }));
+                  }}
+                  placeholder="Enter category name"
+                />
+                {formErrors.name && (
+                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, slug: e.target.value }))
+                  }
+                  placeholder="enter-category-slug"
+                />
+                {formErrors.slug && (
+                  <p className="text-sm text-destructive">{formErrors.slug}</p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={e =>
+                    setFormData(prev => ({ ...prev, description: e.target.value }))
+                  }
+                  placeholder="Enter category description (optional)"
+                  rows={3}
+                />
+                {formErrors.description && (
+                  <p className="text-sm text-destructive">
+                    {formErrors.description}
+                  </p>
+                )}
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="status">Status</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={value =>
+                      setFormData(prev => ({
+                        ...prev,
+                        status: value as 'active' | 'inactive',
+                      }))
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">Active</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="sortOrder">Sort Order</Label>
+                  <Input
+                    id="sortOrder"
+                    type="number"
+                    value={formData.sortOrder}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        sortOrder: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsCreateDialogOpen(false);
+                  resetForm();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleCreate} disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </header>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+              <Input
+                placeholder="Search categories..."
+                value={
+                  (table.getColumn('name')?.getFilterValue() as string) ?? ''
+                }
+                onChange={event =>
+                  table.getColumn('name')?.setFilterValue(event.target.value)
+                }
+                className="w-full pl-10 md:w-1/3"
+              />
+            </div>
+            <Select
+              onValueChange={value =>
+                table
+                  .getColumn('status')
+                  ?.setFilterValue(value === 'all' ? '' : value)
+              }
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map(header => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map(row => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map(cell => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      No results.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-medium">Rows per page</p>
+            <Select
+              value={`${table.getState().pagination.pageSize}`}
+              onValueChange={value => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue
+                  placeholder={table.getState().pagination.pageSize}
+                />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {[10, 20, 30, 40, 50].map(pageSize => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+            Page {table.getState().pagination.pageIndex + 1} of{' '}
+            {table.getPageCount()}
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Edit Category</DialogTitle>
+            <DialogDescription>Update the category information.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-name">Name</Label>
+              <Input
+                id="edit-name"
+                value={formData.name}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Enter category name"
+              />
+              {formErrors.name && (
+                <p className="text-sm text-destructive">{formErrors.name}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-slug">Slug</Label>
+              <Input
+                id="edit-slug"
+                value={formData.slug}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, slug: e.target.value }))
+                }
+                placeholder="enter-category-slug"
+              />
+              {formErrors.slug && (
+                <p className="text-sm text-destructive">{formErrors.slug}</p>
+              )}
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                value={formData.description}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, description: e.target.value }))
+                }
+                placeholder="Enter category description (optional)"
+                rows={3}
+              />
+              {formErrors.description && (
+                <p className="text-sm text-destructive">
+                  {formErrors.description}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={value =>
+                    setFormData(prev => ({
+                      ...prev,
+                      status: value as 'active' | 'inactive',
+                    }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-sortOrder">Sort Order</Label>
+                <Input
+                  id="edit-sortOrder"
+                  type="number"
+                  value={formData.sortOrder}
+                  onChange={e =>
+                    setFormData(prev => ({
+                      ...prev,
+                      sortOrder: parseInt(e.target.value) || 0,
+                    }))
+                  }
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setSelectedCategory(null);
+                resetForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleUpdate} disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Delete Category</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{selectedCategory?.name}&quot;? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setSelectedCategory(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Deleting...' : 'Delete'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

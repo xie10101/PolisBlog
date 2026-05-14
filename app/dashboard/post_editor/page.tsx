@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { uploadPost } from '@/app/modules/post/post.actions';
+import { createPost, uploadPost } from '@/app/modules/post/post.actions';
 import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
 
@@ -86,6 +86,7 @@ export default function PostEditorPage() {
   };
   const previewRef = useRef<HTMLDivElement>(null);
   // 发布文章
+  // 有待补充更新逻辑
   async function handlePublish(data: PostFormData) {
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
@@ -97,8 +98,7 @@ export default function PostEditorPage() {
       authorId: id as string,
     };
     try {
-      const res = await uploadPost(postData);
-      console.log(res);
+      const res = await createPost(postData);
       setIsDialogOpen(false);
     } catch (error) {
       console.error('发布文章失败:', error);

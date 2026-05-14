@@ -42,7 +42,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} body antialiased`}
         style={{ position: 'relative' }}
       >
-        <div id="root">
+        <div id="root" className="flex-1">
           <SideBar className={'sidebar'}></SideBar>
           <Main>{children}</Main>
         </div>

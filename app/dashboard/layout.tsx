@@ -19,36 +19,33 @@ export default function OverviewLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <>
-      <section className="flex h-full">
-        <SidebarProvider className="w-[250px]">
-          <SidebarBlog>
-            <User></User>
-          </SidebarBlog>
-        </SidebarProvider>
-        {/*  隐藏滚动条 */}
-        <main className="no-scrollbar flex-1 flex-col overflow-y-auto bg-[#fafafa]">
-          <main className="m-2 h-full items-center justify-center rounded-xl bg-white shadow-lg">
-            <header className="mb-6 flex flex-row items-center justify-between border-b-1 p-4">
-              {/* 使用奇怪各自模型- border ， padding 置于宽度中 便于处理   */}
-              <Button variant="outline" className="fl">
-                <AlignLeftIcon className="h-4 w-4" />
+      <SidebarProvider className="w-[250px]">
+        <SidebarBlog>
+          <User></User>
+        </SidebarBlog>
+      </SidebarProvider>
+      {/*  隐藏滚动条 */}
+      <main className="no-scrollbar flex-1 flex-col overflow-y-auto bg-[#fafafa]">
+        <main className="m-2 h-full items-center justify-center rounded-xl bg-white shadow-lg">
+          <header className="mb-6 flex flex-row items-center justify-between border-b-1 p-4">
+            {/* 使用奇怪各自模型- border ， padding 置于宽度中 便于处理   */}
+            <Button variant="outline" className="fl">
+              <AlignLeftIcon className="h-4 w-4" />
+            </Button>
+            <div className="flex flex-1 flex-row items-center justify-end gap-2">
+              <Button>
+                <Heart className="h-4 w-4" />
               </Button>
-              <div className="flex flex-1 flex-row items-center justify-end gap-2">
-                <Button>
-                  <Heart className="h-4 w-4" />
-                </Button>
-                <Button>
-                  <MessageCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            </header>
-            <div className="p-4">{children}</div>
-          </main>
+              <Button>
+                <MessageCircle className="h-4 w-4" />
+              </Button>
+            </div>
+          </header>
+          <div className="p-4">{children}</div>
         </main>
-      </section>
+      </main>
     </>
   );
 }

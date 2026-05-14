@@ -11,8 +11,9 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import users from '../user/user.schema';
+import categories from '../category/category.schema';
 
-//  枚举类型名称post_status 
+//  枚举类型名称post_status
 export const postStatusEnum = pgEnum('post_status', [
   'draft',
   'pending',
@@ -59,6 +60,10 @@ const posts = pgTable(
     authorId: uuid('author_id')
       .notNull()
       .references(() => users.id, { onDelete: 'restrict' }),
+
+    categoryId: uuid('category_id').references(() => categories.id, {
+      onDelete: 'set null',
+    }),
   },
   table => [
     // 唯一索引
@@ -72,6 +77,7 @@ const posts = pgTable(
       table.publishedAt.desc(),
     ),
     index('idx_posts_author').on(table.authorId),
+    index('idx_posts_category').on(table.categoryId),
 
     // 部分索引（PostgreSQL 特有）：仅对置顶文章建立索引
     //  index('idx_posts_is_top')

@@ -40,6 +40,7 @@ export function SidebarBlog({
     { name: '文章管理', url: '/dashboard/articles' }, // 编辑部
     { name: '草稿箱', url: '/dashboard/drafts' },
     { name: '文章编辑器', url: '/dashboard/post_editor' }, // 分类管理
+    { name: '分类管理', url: '/dashboard/categories' },
   ];
   const pathname = usePathname();
   return (
