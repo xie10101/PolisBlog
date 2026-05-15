@@ -21,6 +21,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { createPost, uploadPost } from '@/app/modules/post/post.actions';
 import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
+import {
+  CreatePostSchema,
+  CreatePostDto,
+} from '@/app/modules/post/dto/post-create.dto';
 
 // 组件懒加载和渲染方式的设置
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
@@ -34,25 +38,6 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
   loading: () => <div className="p-4 text-gray-500">Loading preview...</div>,
 });
 
-//  zod 创建表单验证 ：
-const PostFormDataSchema = z.object({
-  title: z
-    .string()
-    .min(1, '标题不能为空')
-    .max(100, '标题长度不能超过 100 个字符'),
-  slug: z
-    .string()
-    .min(1, 'Slug 不能为空')
-    .max(100, 'Slug 长度不能超过 100 个字符'),
-  excerpt: z
-    .string()
-    .min(15, '摘要不能少于15字')
-    .max(200, '摘要长度不能超过 200 个字符'),
-  coverImage: z.string().min(1, '封面图不能为空'),
-});
-
-type PostFormData = z.infer<typeof PostFormDataSchema>;
-
 export default function PostEditorPage() {
   const [content, setContent] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -62,8 +47,9 @@ export default function PostEditorPage() {
     formState: { errors, isSubmitting },
     setError,
     handleSubmit,
-  } = useForm<PostFormData>({
+  } = useForm<CreatePostDto>({
     defaultValues: {},
+    resolver: zodResolver(CreatePostSchema),
   });
   // 编辑器主题的设置
   useEffect(() => {
@@ -85,16 +71,17 @@ export default function PostEditorPage() {
     // 这段处理是对文章做 URL 友好标识生成
   };
   const previewRef = useRef<HTMLDivElement>(null);
+
   // 发布文章
   // 有待补充更新逻辑
-  async function handlePublish(data: PostFormData) {
+  async function handlePublish(data: CreatePostDto) {
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
     const postData = {
       ...data,
       content: contentHtml,
       slug,
-      publishedAt: new Date(),
+      publishedAt: dayjs().toISOString(),
       authorId: id as string,
     };
     try {

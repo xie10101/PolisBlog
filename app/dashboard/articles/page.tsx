@@ -292,18 +292,6 @@ export default function ArticlesPage() {
                 <SelectItem value="Scheduled">Scheduled</SelectItem>
               </SelectContent>
             </Select>
-            {/* <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Frontend">Frontend</SelectItem>
-                <SelectItem value="Backend">Backend</SelectItem>
-                <SelectItem value="Architecture">Architecture</SelectItem>
-                <SelectItem value="AI/ML">AI/ML</SelectItem>
-              </SelectContent>
-            </Select> */}
           </div>
         </CardHeader>
         <CardContent>

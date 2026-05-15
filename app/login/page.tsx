@@ -14,41 +14,67 @@ import { Input } from '@/components/ui/input';
 import { SubmitHandler } from 'react-hook-form';
 import { LoginDto, LoginSchema } from '../modules/user/dto/login.dto';
 import { signIn } from 'next-auth/react';
+import useUserInfoStore from '@/store/user';
+import { getUserByUserName } from '../modules/user/user.actions';
+import { useSearchParams } from 'next/navigation';
 const LoginPage = () => {
   const router = useRouter();
+  const setInfo = useUserInfoStore(state => state.setInfo);
+  const searchParams = useSearchParams();
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
     setError,
   } = useForm<LoginDto>({
-    // useForm 方法是一个多重封装高效架构的函数钩子
     defaultValues: {
       username: '',
       password: '',
     },
     resolver: zodResolver(LoginSchema),
   });
-  // 非必选配置 useActionstate -类似 useReducer  连接 action ?
 
   const onSubmit: SubmitHandler<LoginDto> = async data => {
     try {
-      console.log(data);
+      // 1. 调用 Auth.js 登录
+      // 设置 redirect: false 以便在客户端处理后续逻辑
       const result = await signIn('credentials', {
         ...data,
-        redirect: true,
-        callbackUrl: '/dashboard',
+        redirect: false,
       });
-    } catch (error) {
-      console.log(error);
-      // 如果登录失败
-      if (error) {
-        // 把错误设置到表单里 → 页面会显示
+
+      if (result?.error) {
         setError('root', {
           message: '账号或密码错误，请重试',
         });
+        return;
       }
+
+      // 2. 登录成功后，获取完整的用户信息并存入 Zustand
+      const user = await getUserByUserName(data.username);
+
+      if (user) {
+        setInfo({
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          avatar: user.avatar,
+          bio: user.bio,
+        });
+      }
+      const redirectUrl = searchParams.get('callbackUrl');
+      if (redirectUrl) {
+        router.push(redirectUrl);
+      } else {
+        router.push('/dashboard');
+      }
+
+    } catch (error) {
+      console.error('Login Error:', error);
+      setError('root', {
+        message: '登录过程中发生错误，请稍后再试',
+      });
     }
   };
 

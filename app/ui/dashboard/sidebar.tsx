@@ -101,10 +101,10 @@ export function SidebarBlog({
               </SidebarGroup>
             </Collapsible>
           </SidebarContent>
-          <SidebarFooter>
+          <SidebarFooter >
             {/* 设置一个按钮 - 可以是 用户信息部分  */}
             <SidebarMenu>
-              <SidebarMenuItem>
+              <SidebarMenuItem >
                 <SidebarMenuButton>{children}</SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

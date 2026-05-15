@@ -1,39 +1,45 @@
-//保存用户个人信息
 import { create } from 'zustand';
 
-type userInfoStore = {
+interface UserInfo {
   id: string | null;
   email: string | null;
   avatar: string | null;
   username: string | null;
   bio: string | null;
-  setInfo: (info: Omit<userInfoStore, 'setInfo'>) => void;
-  // Partial 会把各个字段类型设置为可选的
-};
-const useUserInfoStore = create<userInfoStore>(set => ({
-  id: '550e8400-e29b-41d4-a716-446655440000',
-  email: '',
-  avatar: '',
-  username: '',
-  bio: '',
-  setInfo: (info: Partial<userInfoStore>) =>
-    set(state => ({ ...state, ...info })),
-}));
-//  可以为null - 展示时默认使用空字符串 兜底
+}
 
-/**
- * setInfo: (info: Partial<userInfoStore>) =>
-  set((state) => ({ ...state, ...info }))
- */
+interface UserInfoStore extends UserInfo {
+  // 设置/更新用户信息（支持部分更新）
+  setInfo: (info: Partial<UserInfo>) => void;
+  // 清空用户信息（恢复初始状态）
+  clearInfo: () => void;
+}
+
+const initialState: UserInfo = {
+  id: null,
+  email: null,
+  avatar: null,
+  username: null,
+  bio: null,
+};
+
+const useUserInfoStore = create<UserInfoStore>(set => ({
+  ...initialState,
+
+  setInfo: info =>
+    set(state => ({
+      ...state,
+      ...info,
+    })),
+
+  clearInfo: () => set(initialState),
+}));
 
 export default useUserInfoStore;
 
-/**
- *  使用错误 ： 
- * const useBearStore = create((set) => ({
-    bears: 0,
-    increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-    removeAllBears: () => set({ bears: 0 }),
-  }))
- * 
- */
+// persist 中间件的介绍
+
+//登录状态追踪 ( isLoggedIn ) ：
+
+// 新增了 isLoggedIn 属性。
+//自动化逻辑 ：在调用 setInfo 时，系统会自动判断是否有 id 传入，从而自动更新登录状态。

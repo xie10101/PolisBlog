@@ -6,7 +6,7 @@ import UserRepository from '@/app/modules/user/server';
 // 用户信息的基础类型定义
 export type User = {
   id: number;
-  name: string;
+  username: string;
   email: string;
   avatarUrl: string;
 };
@@ -24,13 +24,13 @@ export async function User() {
         <Image
           src={userInfo?.avatar || '/globe.svg'}
           width={30}
-          height={30}
+          height={40}
           alt="avatar"
           className="rounded-full"
         />
-        <div className="ml-4 flex flex-col justify-center">
+        <div className="ml-2 flex flex-col justify-center">
           <h2 className="text-l font-bold">{userInfo?.username || 'User'}</h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-[12px] text-gray-500">
             {userInfo?.email || 'Email not available'}
           </p>
         </div>
