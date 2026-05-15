@@ -6,13 +6,22 @@ const UserRepository = {
     const data = await db.select().from(users);
     return data;
   },
-  // 获取对应用户名的用户信息 -- 用户名不具有唯一性吗
-
+  // 获取对应用户名的用户信息
   async getUserByName(username: string) {
     const data = await db
       .select()
       .from(users)
       .where(eq(users.username, username))
+      .limit(1);
+    return data[0];
+  },
+
+  // 获取对应邮箱的用户信息
+  async getUserByEmail(email: string) {
+    const data = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
       .limit(1);
     return data[0];
   },
@@ -27,5 +36,10 @@ const UserRepository = {
     return data;
   },
   //xx() {} (对象方法) : 这等同于传统对象的 xx: function() {} 。
+  // 根据id 获取用户信息
+  async getUserById(id: string) {
+    const data = await db.select().from(users).where(eq(users.id, id)).limit(1);
+    return data[0];
+  },
 };
 export default UserRepository;

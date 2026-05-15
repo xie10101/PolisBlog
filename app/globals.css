@@ -130,9 +130,6 @@
 /* 组件类*/
 
 @layer components {
-  /* .container {
-    @apply flex h-screen w-full items-center justify-center;
-  } */
   .hookForm {
     @apply space-y-4;
   }

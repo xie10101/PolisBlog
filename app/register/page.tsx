@@ -13,8 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RegisterSchema, registerDto } from '../modules/user/dto/register.dto';
-// import from './register.module.css';
-
+import { Register } from '../modules/user/user.actions';
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -34,11 +33,11 @@ export default function RegisterPage() {
   });
 
   const onSubmit: SubmitHandler<registerDto> = async data => {
-    console.log(data);
-    // 提炼实际表单值 ：
-    const { confirmPassword, ...formData } = data;
     try {
-      const result = await registerUser(undefined, formData);
+      const result = await Register(data);
+      if (result.success) {
+        router.push('/login');
+      }
     } catch (error) {
       setError('root', {
         message: error instanceof Error ? error.message : '注册错误',
@@ -47,7 +46,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="container">
+    <div className="flex h-screen w-full items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">注册账号</CardTitle>

@@ -45,9 +45,7 @@ import {
 import { useState, useEffect } from 'react';
 import { fetchAllPosts } from '@/app/modules/post/post.actions';
 import { mapPostDBToUI } from '@/utils/map';
-// import { getFirstUser } from '../../actions/user.actions';
-// import useUserInfoStore from '@/store/user';
-// mock 数据
+import { useRouter } from 'next/navigation';
 
 export type Article = {
   id: string;
@@ -94,7 +92,7 @@ export const columns: ColumnDef<Article>[] = [
       <div className="flex items-center gap-4">
         {
           <Image
-            src={row.original.imageUrl}
+            src="/file.svg"
             alt="article image"
             width={40}
             height={40}
@@ -198,21 +196,7 @@ export const columns: ColumnDef<Article>[] = [
 
 // Main Component
 export default function ArticlesPage() {
-  //简单处理
-  // const setInfo = useUserInfoStore(state => state.setInfo);
-  // const userInfo = getFirstUser().then(res => {
-  //   const first = res[0];
-
-  //   const userInfo = {
-  //     id: first.id,
-  //     email: first.email,
-  //     avatar: first.avatar,
-  //     username: first.username,
-  //     bio: first.bio,
-  //   };
-  //   setInfo(userInfo);
-  // });
-
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -264,7 +248,11 @@ export default function ArticlesPage() {
       {/*  响应式处理- md:xx  */}
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Articles</h1>
-        <Button>
+        <Button
+          onClick={() => {
+            router.push('/dashboard/post_editor');
+          }}
+        >
           <PlusCircle className="mr-2 h-4 w-4" /> Add New Article
         </Button>
       </header>

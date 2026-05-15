@@ -1,24 +1,57 @@
 'use server';
-//  -- 有关 用户 模块的 服务器端- controller 部分  逻辑
+
 import UserRepository from '@/app/modules/user/server';
-import { registerDto } from './dto/register.dto';
+import { RegisterSchema, registerDto } from './dto/register.dto';
+import bcrypt from 'bcryptjs';
 
 export async function getUserByUserName(username: string) {
+  console.log(username);
   return await UserRepository.getUserByName(username);
 }
 
 // 获取当前第一个用户信息
-
 export async function getFirstUser() {
   return await UserRepository.getFirstUser();
 }
 
-// 存入用户信息
-export async function register(data: registerDto) {
-    //  保证用户名/邮箱不重复 ：
+// 注册用户
+// 类型分离 -- 不包含 confirm
+export async function Register(data: registerDto) {
+  // 1. Zod 验证数据
+  const parsed = RegisterSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: '参数校验失败', details: parsed.error.issues };
+  }
 
-  // 处理密码加密问题 ：
-  const password 
-     
-  const res = await UserRepository.insertUser(data);
+  const { username, email, password } = parsed.data;
+
+  // 2. 检查用户名是否已存在
+  const existingUser = await UserRepository.getUserByName(username);
+  if (existingUser) {
+    return { error: '用户名已被注册' };
+  }
+
+  // 3. 检查邮箱是否已存在
+  const existingEmail = await UserRepository.getUserByEmail(email);
+  if (existingEmail) {
+    return { error: '邮箱已被注册' };
+  }
+
+  // 4. 密码加密
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  // 5. 插入用户（排除 confirmPassword）
+  await UserRepository.insertUser({
+    username,
+    email,
+    passwordHash,
+  });
+
+  return { success: true };
 }
+
+//  session ID - 
+// // 获取当前用户信息
+// export async function getCurrentUserInfo() {
+//   return await UserRepository.getCurrentUserInfo();
+// }

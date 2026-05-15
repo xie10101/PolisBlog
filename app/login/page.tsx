@@ -1,5 +1,4 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -14,8 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SubmitHandler } from 'react-hook-form';
 import { LoginDto, LoginSchema } from '../modules/user/dto/login.dto';
-import { signIn } from '../modules/auth';
-import { AuthError } from 'next-auth';
+import { signIn } from 'next-auth/react';
 const LoginPage = () => {
   const router = useRouter();
   const {
@@ -36,9 +34,14 @@ const LoginPage = () => {
 
   const onSubmit: SubmitHandler<LoginDto> = async data => {
     try {
-      const test = await signIn('credentials', data);
-      console.log(test);
+      console.log(data);
+      const result = await signIn('credentials', {
+        ...data,
+        redirect: true,
+        callbackUrl: '/dashboard',
+      });
     } catch (error) {
+      console.log(error);
       // 如果登录失败
       if (error) {
         // 把错误设置到表单里 → 页面会显示

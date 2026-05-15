@@ -3,5 +3,5 @@ export default function ArticlesLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>123123{children}</>;
+  return <>{children}</>;
 }
