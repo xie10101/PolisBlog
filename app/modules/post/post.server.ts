@@ -21,4 +21,11 @@ export const PostRepository = {
   async updateImageUrl(id: string, coverImage: string) {
     return await db.update(posts).set({ coverImage }).where(eq(posts.id, id));
   },
+  //删除操作 
+  async remove(id: string) {
+    return await db.delete(posts).where(eq(posts.id, id));
+  },
+     
 };
+
+

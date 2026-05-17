@@ -19,6 +19,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createPost, uploadPost } from '@/app/modules/post/post.actions';
+import { getActiveCategories } from '@/app/modules/category/category.actions';
 import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
 import {
@@ -41,6 +42,9 @@ const MarkdownPreview = dynamic(() => import('@uiw/react-markdown-preview'), {
 export default function PostEditorPage() {
   const [content, setContent] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
+    [],
+  );
   const id = useUserInfoStore(state => state.id);
   const {
     register,
@@ -48,9 +52,25 @@ export default function PostEditorPage() {
     setError,
     handleSubmit,
   } = useForm<CreatePostDto>({
-    defaultValues: {},
+    defaultValues: {
+      status: 'draft',
+      isTop: false,
+      sortOrder: 0,
+    },
     resolver: zodResolver(CreatePostSchema),
   });
+
+  // 获取分类数据
+  useEffect(() => {
+    async function fetchCategories() {
+      const res = await getActiveCategories();
+      if (res.success && res.data) {
+        setCategories(res.data as any);
+      }
+    }
+    fetchCategories();
+  }, []);
+
   // 编辑器主题的设置
   useEffect(() => {
     document.documentElement.setAttribute('data-color-mode', 'light');
@@ -70,6 +90,23 @@ export default function PostEditorPage() {
       .replace(/^-|-$/g, '');
     // 这段处理是对文章做 URL 友好标识生成
   };
+
+  // 计算字数和阅读时间
+  const calculateMetrics = (text: string) => {
+    // 粗略计算：中文算一个字，英文单词算一个字
+    const chineseChars = text.match(/[\u4e00-\u9fa5]/g) || [];
+    const englishWords = text
+      .replace(/[\u4e00-\u9fa5]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 0);
+
+    const wordCount = chineseChars.length + englishWords.length;
+    // 假设阅读速度为 300 字/分钟
+    const readTime = Math.ceil(wordCount / 300);
+
+    return { wordCount, readTime };
+  };
+
   const previewRef = useRef<HTMLDivElement>(null);
 
   // 发布文章
@@ -77,16 +114,27 @@ export default function PostEditorPage() {
   async function handlePublish(data: CreatePostDto) {
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
+    const { wordCount, readTime } = calculateMetrics(content);
+
     const postData = {
       ...data,
-      content: contentHtml,
+      content: content,
+      htmlContent: contentHtml, // 修正字段名为 htmlContent
       slug,
+      wordCount,
+      readTime,
       publishedAt: dayjs().toISOString(),
       authorId: id as string,
     };
     try {
       const res = await createPost(postData);
-      setIsDialogOpen(false);
+      if (res.success) {
+        setIsDialogOpen(false);
+        // 这里可以添加成功提示或跳转
+      } else {
+        // 处理后端返回的错误
+        setError('root', { message: res.error as string });
+      }
     } catch (error) {
       console.error('发布文章失败:', error);
     }
@@ -162,6 +210,26 @@ export default function PostEditorPage() {
                   </span>
                 )}
               </div>
+              {/* 分类 */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">分类</label>
+                <select
+                  {...register('categoryId')}
+                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="">请选择分类</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                {errors.categoryId && (
+                  <span className="error-message">
+                    {errors.categoryId.message}
+                  </span>
+                )}
+              </div>
 
               {/* 封面图 */}
               <div className="space-y-2">
@@ -176,6 +244,14 @@ export default function PostEditorPage() {
                     {errors.coverImage.message}
                   </span>
                 )}
+              </div>
+
+              {/* 统计信息预览 */}
+              <div className="flex gap-4 text-sm text-gray-500">
+                <span>预计字数：{calculateMetrics(content).wordCount} 字</span>
+                <span>
+                  预计阅读时间：{calculateMetrics(content).readTime} 分钟
+                </span>
               </div>
 
               {/* 内容预览 -- 该数据的处理1. 因为转换时内容逻辑执行的所以验证可以自定义处理  */}

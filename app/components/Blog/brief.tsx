@@ -1,8 +1,6 @@
 // 内容简述组件
 'use client';
 import { MetaItem } from '@/app/types/meta';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import {faThumbTack } from '@fortawesome/free-solid-svg-icons';
 import '@/app/reset.css';
 // import PostTips from './components/Blog/PostTips';
 import { useRouter } from 'next/navigation';
@@ -15,7 +13,7 @@ import {
   ItemTitle,
   ItemDescription,
 } from '../ui/item';
-export default function Brief(props: { meta: MetaItem | null; slug: string }) {
+export default function Brief(props: { slug: string }) {
   const router = useRouter();
   const handleLinkClick = (e: React.MouseEvent<HTMLDivElement>) => {
     router.push(`/${props.slug}`);

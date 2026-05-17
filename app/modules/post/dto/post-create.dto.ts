@@ -24,7 +24,7 @@ export const CreatePostSchema = z.object({
   sortOrder: z.number().int().default(0),
 
   // 发布时间（可选，发布时设置）
-  publishedAt: z.string().datetime().optional(),
+  publishedAt: z.coerce.date().optional(),
 
   // 作者ID（必填）
   authorId: z.string().uuid('作者ID必须是有效的UUID'),
