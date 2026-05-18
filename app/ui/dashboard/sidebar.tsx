@@ -37,10 +37,11 @@ export function SidebarBlog({
 
   const projects = [
     { name: '仪表盘', url: '/dashboard' },
-    { name: '文章管理', url: '/dashboard/articles' }, // 编辑部
+    { name: '文章管理', url: '/dashboard/articles' }, 
     { name: '草稿箱', url: '/dashboard/drafts' },
-    { name: '文章编辑器', url: '/dashboard/post_editor' }, // 分类管理
+    { name: '文章编辑器', url: '/dashboard/post_editor' }, 
     { name: '分类管理', url: '/dashboard/categories' },
+    {name: "作者信息",url:"/dashboard/authInfo"}
   ];
   const pathname = usePathname();
   return (

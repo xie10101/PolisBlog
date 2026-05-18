@@ -357,23 +357,23 @@ export default function CategoriesPage() {
   return (
     <div className="w-full p-4 md:p-8">
       <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Categories</h1>
+        <h1 className="text-3xl font-bold">文章分类</h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
-              <PlusCircle className="mr-2 h-4 w-4" /> Add New Category
+              <PlusCircle className="mr-2 h-4 w-4" /> 添加新的分类
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Create Category</DialogTitle>
+              <DialogTitle>创建新的文章分类</DialogTitle>
               <DialogDescription>
-                Add a new category to organize your articles.
+                创建新的文章分类，用于组织和管理您的文章。
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">分类名称</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -385,14 +385,14 @@ export default function CategoriesPage() {
                       slug: prev.slug || generateSlug(name),
                     }));
                   }}
-                  placeholder="Enter category name"
+                  placeholder="输入分类名称"
                 />
                 {formErrors.name && (
                   <p className="text-sm text-destructive">{formErrors.name}</p>
                 )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="slug">Slug</Label>
+                <Label htmlFor="slug">分类Slug</Label>
                 <Input
                   id="slug"
                   value={formData.slug}
@@ -406,14 +406,14 @@ export default function CategoriesPage() {
                 )}
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">分类描述</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={e =>
                     setFormData(prev => ({ ...prev, description: e.target.value }))
                   }
-                  placeholder="Enter category description (optional)"
+                  placeholder="输入分类描述（可选）"
                   rows={3}
                 />
                 {formErrors.description && (
@@ -438,8 +438,8 @@ export default function CategoriesPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
+                      <SelectItem value="active">活跃</SelectItem>
+                      <SelectItem value="inactive">不活跃</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

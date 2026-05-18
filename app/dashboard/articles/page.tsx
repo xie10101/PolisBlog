@@ -209,11 +209,12 @@ export default function ArticlesPage() {
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchAllPosts();
+      console.log(result);
       if (result.success) {
         // 注意：这里需要确保数据库返回的字段与 Article 类型匹配
         // 如果不匹配，需要在这里进行 map 转换
         // 需要做map 映射处理 ：
-        setArticles(result?.data?.map(mapPostDBToUI) || []);
+        setArticles(result?.data?.posts.map(mapPostDBToUI) || []);
       }
       setLoading(false);
     };

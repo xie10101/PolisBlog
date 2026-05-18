@@ -3,7 +3,8 @@
 import { PostRepository } from '@/app/modules/post/post.server';
 import { CreatePostDto } from '@/app/modules/post/dto/post-create.dto';
 
-// 如何做 反馈数据
+// 包括 ：删除 ，新增， 更新 ， 查找 （多条件）（根据具体条件- 分页- 多条件）
+
 export async function fetchAllPosts() {
   try {
     const posts = await PostRepository.findAll();
@@ -28,6 +29,7 @@ export async function createPost(post: CreatePostDto) {
     const result = await PostRepository.create(post);
     return { success: true, data: result };
   } catch (error) {
+    console.log(error);
     return { success: false, error: '创建文章失败' };
   }
 }

@@ -18,14 +18,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createPost, uploadPost } from '@/app/modules/post/post.actions';
+import { createPost } from '@/app/modules/post/post.actions';
 import { getActiveCategories } from '@/app/modules/category/category.actions';
 import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
 import {
-  CreatePostSchema,
-  CreatePostDto,
-} from '@/app/modules/post/dto/post-create.dto';
+  CreateFormDto,
+  CreateFormtSchema,
+} from '@/app/modules/post/dto/newpost-create.dto';
+import { AnyCnameRecord } from 'dns';
 
 // 组件懒加载和渲染方式的设置
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
@@ -51,13 +52,14 @@ export default function PostEditorPage() {
     formState: { errors, isSubmitting },
     setError,
     handleSubmit,
-  } = useForm<CreatePostDto>({
+  } = useForm<CreateFormDto>({
     defaultValues: {
-      status: 'draft',
-      isTop: false,
-      sortOrder: 0,
+      title: '',
+      coverImage: '/xx',
+      excerpt: '',
+      categoryId: '',
     },
-    resolver: zodResolver(CreatePostSchema),
+    resolver: zodResolver(CreateFormtSchema),
   });
 
   // 获取分类数据
@@ -111,7 +113,8 @@ export default function PostEditorPage() {
 
   // 发布文章
   // 有待补充更新逻辑
-  async function handlePublish(data: CreatePostDto) {
+  async function handlePublish(data: CreateFormDto) {
+    console.log(data);
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
     const { wordCount, readTime } = calculateMetrics(content);
@@ -123,11 +126,14 @@ export default function PostEditorPage() {
       slug,
       wordCount,
       readTime,
-      publishedAt: dayjs().toISOString(),
+      publishedAt: new Date(),
       authorId: id as string,
+      // 状态 - 置顶 排序
     };
+    console.log(postData);
     try {
       const res = await createPost(postData);
+      console.log(res);
       if (res.success) {
         setIsDialogOpen(false);
         // 这里可以添加成功提示或跳转
@@ -290,3 +296,5 @@ export default function PostEditorPage() {
     </div>
   );
 }
+
+// 表单字段基础交互和单独逻辑处理 -- 分离设置chema

@@ -13,15 +13,18 @@ export const CreatePostSchema = z.object({
   coverImage: z.string().max(500, '封面图片URL最多500字符').optional(),
 
   // 状态（默认草稿） // 与 schema 一致
-  status: z.enum(['draft', 'pending', 'published', 'trash']).default('draft'),
+  status: z
+    .enum(['draft', 'pending', 'published', 'trash'])
+    .optional()
+    .default('draft'),
 
   // 统计字段（可选，通常由系统计算）
   wordCount: z.number().int().min(0).optional(),
   readTime: z.number().int().min(0).optional(),
 
   // 排序
-  isTop: z.boolean().default(false),
-  sortOrder: z.number().int().default(0),
+  isTop: z.boolean().optional().default(false),
+  sortOrder: z.number().int().optional().default(0),
 
   // 发布时间（可选，发布时设置）
   publishedAt: z.coerce.date().optional(),
