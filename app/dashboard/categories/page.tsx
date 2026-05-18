@@ -158,7 +158,7 @@ export const columns: ColumnDef<Category>[] = [
   {
     id: 'actions',
     header: 'Operations',
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const category = row.original;
       return (
         <DropdownMenu>
@@ -171,19 +171,19 @@ export const columns: ColumnDef<Category>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {/* <DropdownMenuItem
-              onClick={() => row.table.options.meta?.onEdit?.(category)}
+            <DropdownMenuItem
+              onClick={() => table.options.meta?.onEdit?.(category)}
             >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
-              onClick={() => row.table.options.meta?.onDelete?.(category)}
+              onClick={() => table.options.meta?.onDelete?.(category)}
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem> */}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -487,10 +487,10 @@ export default function CategoriesPage() {
                   resetForm();
                 }}
               >
-                Cancel
+                取消
               </Button>
               <Button onClick={handleCreate} disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create'}
+                {isSubmitting ? '创建中...' : '创建'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -524,9 +524,9 @@ export default function CategoriesPage() {
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
+                <SelectItem value="all">所有状态</SelectItem>
+                <SelectItem value="active">活跃</SelectItem>
+                <SelectItem value="inactive">不活跃</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -584,7 +584,7 @@ export default function CategoriesPage() {
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No results.
+                      没有结果.
                     </TableCell>
                   </TableRow>
                 )}
@@ -629,14 +629,14 @@ export default function CategoriesPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle>编辑分类</DialogTitle>
             <DialogDescription>
-              Update the category information.
+              更新分类信息。
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="edit-name">Name</Label>
+              <Label htmlFor="edit-name">名称</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
@@ -699,8 +699,8 @@ export default function CategoriesPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="active">活跃</SelectItem>
+                    <SelectItem value="inactive">不活跃</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
