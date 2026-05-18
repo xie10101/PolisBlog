@@ -17,6 +17,7 @@ import { signIn } from 'next-auth/react';
 import useUserInfoStore from '@/store/user';
 import { getUserByUserName } from '../modules/user/user.actions';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 const LoginPage = () => {
   const router = useRouter();
   const setInfo = useUserInfoStore(state => state.setInfo);
@@ -36,21 +37,20 @@ const LoginPage = () => {
   });
 
   const onSubmit: SubmitHandler<LoginDto> = async data => {
-    try {
-      // 1. 调用 Auth.js 登录
-      // 设置 redirect: false 以便在客户端处理后续逻辑
-      const result = await signIn('credentials', {
-        ...data,
-        redirect: false,
+    // 1. 调用 Auth.js 登录
+    // 设置 redirect: false 以便在客户端处理后续逻辑
+    const result = await signIn('credentials', {
+      ...data,
+      redirect: false,
+    });
+    if (result?.error) {
+      setError('root', {
+        message: '登录失败，请重试',
       });
+      return;
+    }
 
-      if (result?.error) {
-        setError('root', {
-          message: '账号或密码错误，请重试',
-        });
-        return;
-      }
-
+    try {
       // 2. 登录成功后，获取完整的用户信息并存入 Zustand
       const user = await getUserByUserName(data.username);
 
@@ -63,23 +63,20 @@ const LoginPage = () => {
           bio: user.bio,
         });
       }
+      toast.success('登录成功');
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      toast.error('用户信息失败');
+    } finally {
+      // 无论是否获取到用户信息，都继续进行重定向
       const redirectUrl = searchParams.get('callbackUrl');
       if (redirectUrl) {
         router.push(redirectUrl);
       } else {
         router.push('/dashboard');
       }
-
-    } catch (error) {
-      console.error('Login Error:', error);
-      setError('root', {
-        message: '登录过程中发生错误，请稍后再试',
-      });
     }
   };
-
-  //   react-hook-form 中 如何处理 setErrors
-
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <Card className="shadow-md">

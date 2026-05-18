@@ -13,7 +13,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RegisterSchema, registerDto } from '../modules/user/dto/register.dto';
-import { Register } from '../modules/user/user.actions';
+import { RegisterHandler } from '../modules/user/user.actions';
+import { toast } from 'sonner';
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -33,15 +34,12 @@ export default function RegisterPage() {
   });
 
   const onSubmit: SubmitHandler<registerDto> = async data => {
-    try {
-      const result = await Register(data);
-      if (result.success) {
-        router.push('/login');
-      }
-    } catch (error) {
-      setError('root', {
-        message: error instanceof Error ? error.message : '注册错误',
-      });
+    const result = await RegisterHandler(data);
+    if (result.success) {
+      toast.success(result.data?.message || '注册成功');
+      router.push('/login');
+    } else {
+      toast(result.error);
     }
   };
 
