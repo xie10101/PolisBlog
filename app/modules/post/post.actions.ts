@@ -2,43 +2,28 @@
 // controller 层
 import { PostRepository } from '@/app/modules/post/post.server';
 import { CreatePostDto } from '@/app/modules/post/dto/post-create.dto';
-
+import { actionHandler } from '@/lib/api-handler';
 // 包括 ：删除 ，新增， 更新 ， 查找 （多条件）（根据具体条件- 分页- 多条件）
 
 export async function fetchAllPosts() {
-  try {
-    const posts = await PostRepository.findAll();
-    return { success: true, data: { posts, totalPages: posts.length } };
-  } catch (error) {
-    return { success: false, error: '获取文章失败' };
-  }
+  const res = await actionHandler(() => PostRepository.findAll());
+  return res;
 }
 //  设置更新操作 - action
 
 export async function updatePost(id: string, coverImage: string) {
-  try {
-    const result = await PostRepository.updateImageUrl(id, coverImage);
-    return { success: true, data: result };
-  } catch (error) {
-    return { success: false, error: '更新文章失败' };
-  }
+  const res = await actionHandler(() =>
+    PostRepository.updateImageUrl(id, coverImage),
+  );
+  return res;
 }
 
 export async function createPost(post: CreatePostDto) {
-  try {
-    const result = await PostRepository.create(post);
-    return { success: true, data: result };
-  } catch (error) {
-    console.log(error);
-    return { success: false, error: '创建文章失败' };
-  }
+  const res = await actionHandler(() => PostRepository.create(post));
+  return res;
 }
 
 export async function deletePost(id: string) {
-  try {
-    const result = await PostRepository.remove(id);
-    return { success: true, data: result };
-  } catch (error) {
-    return { success: false, error: '删除文章失败' };
-  }
+  const res = await actionHandler(() => PostRepository.remove(id));
+  return res;
 }

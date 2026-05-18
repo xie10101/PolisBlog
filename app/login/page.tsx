@@ -43,38 +43,36 @@ const LoginPage = () => {
       ...data,
       redirect: false,
     });
+    // 实际返回是包装对象 - signResponse
+    // authorize 返回 null → signIn 返回 { ok: false, error: 'CredentialsSignin' }
+    // authorize 返回 user 对象 → signIn 返回 { ok: true, error: null }
     if (result?.error) {
       setError('root', {
         message: '登录失败，请重试',
       });
       return;
     }
+    toast.success('登录成功');
+    // 2. 登录成功后，获取完整的用户信息并存入 Zustand
+    const res = await getUserByUserName(data.username);
 
-    try {
-      // 2. 登录成功后，获取完整的用户信息并存入 Zustand
-      const user = await getUserByUserName(data.username);
+    if (res.success && res.data) {
+      setInfo({
+        id: res.data.id,
+        username: res.data.username,
+        email: res.data.email,
+        avatar: res.data.avatar,
+        bio: res.data.bio,
+      });
+    }
 
-      if (user) {
-        setInfo({
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          avatar: user.avatar,
-          bio: user.bio,
-        });
-      }
-      toast.success('登录成功');
-    } catch (error) {
-      console.error('获取用户信息失败:', error);
-      toast.error('用户信息失败');
-    } finally {
-      // 无论是否获取到用户信息，都继续进行重定向
-      const redirectUrl = searchParams.get('callbackUrl');
-      if (redirectUrl) {
-        router.push(redirectUrl);
-      } else {
-        router.push('/dashboard');
-      }
+    if (res.error) toast.error('用户信息获取失败');
+
+    const redirectUrl = searchParams.get('callbackUrl');
+    if (redirectUrl) {
+      router.push(redirectUrl);
+    } else {
+      router.push('/dashboard');
     }
   };
   return (

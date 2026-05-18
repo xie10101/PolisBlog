@@ -15,6 +15,8 @@ export type ActionResponse<T> = {
 /**
  * Server Action 全局拦截/包装器
  * 用于统一处理错误日志、验证错误以及返回格式
+ *
+ * 该拦截器仅用于错误捕捉，错误信息收集 ，基础server 执行 ， 统一响应格式
  */
 export async function actionHandler<T>(
   action: () => Promise<T>,
@@ -34,6 +36,23 @@ export async function actionHandler<T>(
         errors: error.flatten().fieldErrors as Record<string, string[]>,
       };
     }
+
+    /**
+ *  error.flatten  : ZOD 内部封装方法 
+ * [
+      { code: 'too_small', message: '至少2个字符', path: ['username'] },
+      { code: 'invalid_type', message: '必填', path: ['password'] },
+   ]
+    转换为：
+    {
+      formErrors: [],       // 全局错误（一般不用）
+      fieldErrors: {        // 字错误（前端最需要！）
+        username: ['至少2个字符'],
+        password: ['必填']
+      }
+    }
+
+ */
 
     // 处理常规错误
     return {

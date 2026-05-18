@@ -4,7 +4,6 @@ import { db } from '@/lib/db.ts';
 import posts from './post.schema.ts';
 import { eq } from 'drizzle-orm';
 export const PostRepository = {
-
   // 查找所有
   async findAll() {
     return await db.select().from(posts);
@@ -16,15 +15,11 @@ export const PostRepository = {
   },
 
   // 更新 -- imageUrl操作
-
   async updateImageUrl(id: string, coverImage: string) {
     return await db.update(posts).set({ coverImage }).where(eq(posts.id, id));
   },
-  //删除操作 
+  //删除操作
   async remove(id: string) {
     return await db.delete(posts).where(eq(posts.id, id));
   },
-     
 };
-
-

@@ -6,13 +6,9 @@ import bcrypt from 'bcryptjs';
 import { actionHandler } from '@/lib/api-handler';
 
 export async function getUserByUserName(username: string) {
-  return await UserRepository.getUserByName(username);
+  const res = await actionHandler(() => UserRepository.getUserByName(username));
+  return res;
 }
-
-// // 获取当前第一个用户信息
-// export async function getFirstUser() {
-//   return await UserRepository.getFirstUser();
-// }
 
 export async function Register(data: registerDto) {
   // 1. Zod 验证数据

@@ -81,6 +81,7 @@ export type Category = {
   updatedAt: Date;
 };
 
+// table 数据实例
 export const columns: ColumnDef<Category>[] = [
   {
     id: 'select',
@@ -170,7 +171,7 @@ export const columns: ColumnDef<Category>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => row.table.options.meta?.onEdit?.(category)}
             >
               <Pencil className="mr-2 h-4 w-4" />
@@ -182,7 +183,7 @@ export const columns: ColumnDef<Category>[] = [
             >
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -201,7 +202,7 @@ export default function CategoriesPage() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // Dialog states
+  // 对话框状态
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -209,7 +210,7 @@ export default function CategoriesPage() {
     null,
   );
 
-  // Form states
+  // 表单状态
   const [formData, setFormData] = useState<Partial<CreateCategoryDto>>({
     name: '',
     slug: '',
@@ -243,10 +244,14 @@ export default function CategoriesPage() {
       setIsCreateDialogOpen(false);
       resetForm();
       await loadCategories();
+      toast('创建成功');
     } else {
-      if (result.details) {
+      toast(result.error || '创建失败');
+      if (result.errors) {
         const errors: Record<string, string> = {};
-        Object.entries(result.details).forEach(([key, value]) => {
+        // 数据信息字段不知是否对应
+        //此种error处理配套 zod校验
+        Object.entries(result.errors).forEach(([key, value]) => {
           if (Array.isArray(value)) {
             errors[key] = value[0];
           }
@@ -272,11 +277,13 @@ export default function CategoriesPage() {
       setIsEditDialogOpen(false);
       setSelectedCategory(null);
       resetForm();
+      toast('更新成功');
       await loadCategories();
     } else {
-      if (result.details) {
+      toast(result.error || '更新失败');
+      if (result.errors) {
         const errors: Record<string, string> = {};
-        Object.entries(result.details).forEach(([key, value]) => {
+        Object.entries(result.errors).forEach(([key, value]) => {
           if (Array.isArray(value)) {
             errors[key] = value[0];
           }
@@ -294,12 +301,14 @@ export default function CategoriesPage() {
     const result = await deleteCategory(selectedCategory.id);
 
     if (result.success) {
+      toast('删除成功');
       setIsDeleteDialogOpen(false);
       setSelectedCategory(null);
       await loadCategories();
+    } else {
+      toast(result.error || '删除失败');
     }
     setIsSubmitting(false);
-    toast("删除成功")
   };
 
   const resetForm = () => {
@@ -733,10 +742,10 @@ export default function CategoriesPage() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
-            <DialogTitle>Delete Category</DialogTitle>
+            <DialogTitle>删除分类</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{selectedCategory?.name}
-              &quot;? This action cannot be undone.
+              你确定要删除吗 &quot;{selectedCategory?.name}
+              &quot;? 此操作无法撤销。
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
