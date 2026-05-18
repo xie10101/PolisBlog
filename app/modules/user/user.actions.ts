@@ -5,7 +5,6 @@ import { RegisterSchema, registerDto } from './dto/register.dto';
 import bcrypt from 'bcryptjs';
 
 export async function getUserByUserName(username: string) {
-  console.log(username);
   return await UserRepository.getUserByName(username);
 }
 
@@ -50,8 +49,4 @@ export async function Register(data: registerDto) {
   return { success: true };
 }
 
-//  session ID - 
-// // 获取当前用户信息
-// export async function getCurrentUserInfo() {
-//   return await UserRepository.getCurrentUserInfo();
-// }
+// 最终的收获是完整的实现数据收集 - 数据获取 - 完整可靠 

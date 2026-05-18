@@ -69,7 +69,7 @@ import {
 } from '@/app/modules/category/category.actions';
 import { CreateCategoryDto } from '@/app/modules/category/dto/category-create.dto';
 import { UpdateCategoryDto } from '@/app/modules/category/dto/category-update.dto';
-
+import { toast } from 'sonner';
 export type Category = {
   id: string;
   name: string;
@@ -109,7 +109,7 @@ export const columns: ColumnDef<Category>[] = [
     header: 'Category Name',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <FolderOpen className="h-4 w-4 text-muted-foreground" />
+        <FolderOpen className="text-muted-foreground h-4 w-4" />
         <span className="font-medium">{row.getValue('name')}</span>
       </div>
     ),
@@ -118,7 +118,7 @@ export const columns: ColumnDef<Category>[] = [
     accessorKey: 'slug',
     header: 'Slug',
     cell: ({ row }) => (
-      <code className="rounded bg-muted px-1.5 py-0.5 text-sm">
+      <code className="bg-muted rounded px-1.5 py-0.5 text-sm">
         {row.getValue('slug')}
       </code>
     ),
@@ -170,7 +170,9 @@ export const columns: ColumnDef<Category>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => row.table.options.meta?.onEdit?.(category)}>
+            <DropdownMenuItem
+              onClick={() => row.table.options.meta?.onEdit?.(category)}
+            >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
             </DropdownMenuItem>
@@ -190,17 +192,22 @@ export const columns: ColumnDef<Category>[] = [
 
 export default function CategoriesPage() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   // Dialog states
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   // Form states
   const [formData, setFormData] = useState<Partial<CreateCategoryDto>>({
@@ -292,6 +299,7 @@ export default function CategoriesPage() {
       await loadCategories();
     }
     setIsSubmitting(false);
+    toast("删除成功")
   };
 
   const resetForm = () => {
@@ -388,7 +396,7 @@ export default function CategoriesPage() {
                   placeholder="输入分类名称"
                 />
                 {formErrors.name && (
-                  <p className="text-sm text-destructive">{formErrors.name}</p>
+                  <p className="text-destructive text-sm">{formErrors.name}</p>
                 )}
               </div>
               <div className="grid gap-2">
@@ -402,7 +410,7 @@ export default function CategoriesPage() {
                   placeholder="enter-category-slug"
                 />
                 {formErrors.slug && (
-                  <p className="text-sm text-destructive">{formErrors.slug}</p>
+                  <p className="text-destructive text-sm">{formErrors.slug}</p>
                 )}
               </div>
               <div className="grid gap-2">
@@ -411,13 +419,16 @@ export default function CategoriesPage() {
                   id="description"
                   value={formData.description}
                   onChange={e =>
-                    setFormData(prev => ({ ...prev, description: e.target.value }))
+                    setFormData(prev => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
                   }
                   placeholder="输入分类描述（可选）"
                   rows={3}
                 />
                 {formErrors.description && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-destructive text-sm">
                     {formErrors.description}
                   </p>
                 )}
@@ -535,7 +546,10 @@ export default function CategoriesPage() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
                       Loading...
                     </TableCell>
                   </TableRow>
@@ -607,7 +621,9 @@ export default function CategoriesPage() {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Category</DialogTitle>
-            <DialogDescription>Update the category information.</DialogDescription>
+            <DialogDescription>
+              Update the category information.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -621,7 +637,7 @@ export default function CategoriesPage() {
                 placeholder="Enter category name"
               />
               {formErrors.name && (
-                <p className="text-sm text-destructive">{formErrors.name}</p>
+                <p className="text-destructive text-sm">{formErrors.name}</p>
               )}
             </div>
             <div className="grid gap-2">
@@ -635,7 +651,7 @@ export default function CategoriesPage() {
                 placeholder="enter-category-slug"
               />
               {formErrors.slug && (
-                <p className="text-sm text-destructive">{formErrors.slug}</p>
+                <p className="text-destructive text-sm">{formErrors.slug}</p>
               )}
             </div>
             <div className="grid gap-2">
@@ -644,13 +660,16 @@ export default function CategoriesPage() {
                 id="edit-description"
                 value={formData.description}
                 onChange={e =>
-                  setFormData(prev => ({ ...prev, description: e.target.value }))
+                  setFormData(prev => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
                 }
                 placeholder="Enter category description (optional)"
                 rows={3}
               />
               {formErrors.description && (
-                <p className="text-sm text-destructive">
+                <p className="text-destructive text-sm">
                   {formErrors.description}
                 </p>
               )}
@@ -716,8 +735,8 @@ export default function CategoriesPage() {
           <DialogHeader>
             <DialogTitle>Delete Category</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete &quot;{selectedCategory?.name}&quot;? This
-              action cannot be undone.
+              Are you sure you want to delete &quot;{selectedCategory?.name}
+              &quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

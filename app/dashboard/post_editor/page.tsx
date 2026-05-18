@@ -27,6 +27,7 @@ import {
   CreateFormtSchema,
 } from '@/app/modules/post/dto/newpost-create.dto';
 import { AnyCnameRecord } from 'dns';
+import { toast } from 'sonner';
 
 // 组件懒加载和渲染方式的设置
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
@@ -159,8 +160,19 @@ export default function PostEditorPage() {
           <Link href="/dashboard/drafts">草稿箱</Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline">保存草稿</Button>
-          <Button onClick={() => setIsDialogOpen(true)}>发布</Button>
+          <Button
+            variant="outline"
+            onClick={() => toast('草稿已保存', { position: 'top-center' })}
+          >
+            保存草稿
+          </Button>
+          <Button
+            onClick={() => {
+              setIsDialogOpen(true);
+            }}
+          >
+            发布
+          </Button>
         </div>
       </div>
 
