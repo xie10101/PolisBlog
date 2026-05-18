@@ -20,12 +20,20 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -43,10 +51,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
-import { fetchAllPosts } from '@/app/modules/post/post.actions';
+import { deletePost, fetchAllPosts } from '@/app/modules/post/post.actions';
 import { mapPostDBToUI } from '@/utils/map';
 import { useRouter } from 'next/navigation';
-
+import { toast } from 'sonner';
 export type Article = {
   id: string;
   title: string;
@@ -92,15 +100,14 @@ export const columns: ColumnDef<Article>[] = [
       <div className="flex items-center gap-4">
         {
           <Image
-            src="/file.svg"
+            src={row.getValue('coverImage')}
             alt="article image"
             width={40}
             height={40}
             className="h-10 w-10 rounded-md object-cover"
-            //  错误处理 -- 的目标地址？？
             onError={() => (
               <Image
-                src="/file.svg"
+                src="xxx"
                 alt="placeholder image"
                 width={40}
                 height={40}
@@ -161,13 +168,9 @@ export const columns: ColumnDef<Article>[] = [
   {
     id: 'actions',
     header: 'Operations',
-    // 如何 设置 colpan为 2
-    // meta: {
-    //   colSpan: 2,
-    // },
     cell: ({ row }) => {
       const article = row.original;
-      //  待处理 - 下拉框actions的设置
+      // 这里不能使用 hooks，需要从上下文传递
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -176,18 +179,29 @@ export const columns: ColumnDef<Article>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          {/* <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(article.id)}
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('openEditDialog', { detail: article }),
+                );
+              }}
             >
-              Copy article ID
+              Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-          </DropdownMenuContent> */}
+            <DropdownMenuItem
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('openDeleteDialog', { detail: article }),
+                );
+              }}
+              className="text-red-600 focus:bg-red-50"
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       );
     },
@@ -201,9 +215,56 @@ export default function ArticlesPage() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-  // 2. 初始化状态，默认可以给个空数组或之前的 mock 数据作为初始值
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  // 编辑文章
+  const handleSaveEdit = () => {
+    // TODO: 调用编辑 API
+    console.log('保存编辑:', selectedArticle);
+    setEditDialogOpen(false);
+  };
+
+  // 删除文章
+  const handleConfirmDelete = async () => {
+    if (!selectedArticle) return;
+    const res = await deletePost(selectedArticle.id);
+
+    if (!res.success) {
+      toast.error(res.error || 'Failed to delete the article');
+      return;
+    } else {
+      toast.success('Article deleted successfully');
+      setArticles(articles.filter(a => a.id !== selectedArticle.id));
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  // 监听自定义事件
+  useEffect(() => {
+    const handleOpenEditDialog = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setSelectedArticle(customEvent.detail);
+      setEditDialogOpen(true);
+    };
+
+    const handleOpenDeleteDialog = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setSelectedArticle(customEvent.detail);
+      setDeleteDialogOpen(true);
+    };
+
+    window.addEventListener('openEditDialog', handleOpenEditDialog);
+    window.addEventListener('openDeleteDialog', handleOpenDeleteDialog);
+
+    return () => {
+      window.removeEventListener('openEditDialog', handleOpenEditDialog);
+      window.removeEventListener('openDeleteDialog', handleOpenDeleteDialog);
+    };
+  }, [articles]);
 
   // 3. 使用 useEffect 获取真实数据
   useEffect(() => {
@@ -211,10 +272,7 @@ export default function ArticlesPage() {
       const result = await fetchAllPosts();
       console.log(result);
       if (result.success) {
-        // 注意：这里需要确保数据库返回的字段与 Article 类型匹配
-        // 如果不匹配，需要在这里进行 map 转换
-        // 需要做map 映射处理 ：
-        setArticles(result?.data?.posts.map(mapPostDBToUI) || []);
+        setArticles(result?.data?.map(mapPostDBToUI) || []);
       }
       setLoading(false);
     };
@@ -432,6 +490,77 @@ export default function ArticlesPage() {
           </div> */}
         </div>
       </div>
+
+      {/* 编辑弹窗 */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Article</DialogTitle>
+            <DialogDescription>
+              Make changes to the article information below
+            </DialogDescription>
+          </DialogHeader>
+          {selectedArticle && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  defaultValue={selectedArticle.title}
+                  placeholder="Article title"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <Input
+                  defaultValue={selectedArticle.category}
+                  placeholder="Category"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <select
+                  defaultValue={selectedArticle.status}
+                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  <option value="Published">Published</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Scheduled">Scheduled</option>
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 删除确认弹窗 */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Article</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{selectedArticle?.title}
+              &quot;? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

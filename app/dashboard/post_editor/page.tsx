@@ -56,7 +56,7 @@ export default function PostEditorPage() {
   } = useForm<CreateFormDto>({
     defaultValues: {
       title: '',
-      coverImage: '/xx',
+      coverImage: '',
       excerpt: '',
       categoryId: '',
     },
@@ -112,8 +112,6 @@ export default function PostEditorPage() {
 
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // 发布文章
-  // 有待补充更新逻辑
   async function handlePublish(data: CreateFormDto) {
     console.log(data);
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
@@ -308,5 +306,3 @@ export default function PostEditorPage() {
     </div>
   );
 }
-
-// 表单字段基础交互和单独逻辑处理 -- 分离设置chema

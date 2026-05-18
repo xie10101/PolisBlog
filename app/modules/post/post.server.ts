@@ -20,6 +20,7 @@ export const PostRepository = {
   },
   //删除操作
   async remove(id: string) {
-    return await db.delete(posts).where(eq(posts.id, id));
+    await db.delete(posts).where(eq(posts.id, id));
+    return { success: true, delectedCount: 1 };
   },
 };
