@@ -8,6 +8,13 @@ export const PostRepository = {
   async findAll() {
     return await db.select().from(posts);
   },
+  // 按照标题字段 - 模糊查找
+  async findByTitle(title: string) {
+    return await db
+      .select()
+      .from(posts)
+      .where(sql`${posts.title} ILIKE ${'%' + title + '%'}`);
+  },
 
   // 分页查找 ：
   async findByPage(page: number, pageSize: number) {
@@ -36,7 +43,13 @@ export const PostRepository = {
 
     //  对创建操作进行parse 校验否则会导致确实字段
     try {
-      return await db.insert(posts).values(post).returning();
+      let i = 0;
+      while (i++ < 10) {
+        {
+          post.slug = `${post.slug}-${Math.random().toString(36).substring(2, 8) + i}`;
+          await db.insert(posts).values(post).returning();
+        }
+      }
     } catch (error) {
       console.error('创建文章失败:', error);
       throw error;

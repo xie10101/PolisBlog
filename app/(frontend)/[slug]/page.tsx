@@ -38,10 +38,7 @@ export default async function Post({
       ...rest,
       publishedAt: res.data.publishedAt?.toISOString() || '',
     };
-  } else {
-    toast('获取文章内容失败');
   }
-
   return (
     <Suspense fallback={<div>加载中...</div>}>
       <Article slug={slug} meta={meta} htmlContent={html} />

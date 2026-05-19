@@ -12,14 +12,11 @@ export default function PageList() {
   const [totalNum, setTotalNum] = useState(1);
   const [posts, setPosts] = useState<{ slug: string; meta: MetaItem }[]>([]);
   // ✅ 新增：把当前页码变成状态，避免渲染时直接使用 searchParams
-  const [currentPage, setCurrentPage] = useState(
-    1,
-    // searchParams.get('postlist') ? parseInt(searchParams.get('postlist')!) : 1,
-  );
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // const page = parseInt(searchParams.get('postlist') || '1');
-    // setCurrentPage(page); // ✅ 更新当前页码状态
+    const postlist = searchParams.get('postlit');
+    setCurrentPage(postlist ? parseInt(postlist) : 1);
     async function fetchData() {
       const res = await fetchPostsByPage(1, 15);
       if (res.success && res.data) {

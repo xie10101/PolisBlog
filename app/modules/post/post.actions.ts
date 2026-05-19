@@ -52,3 +52,9 @@ export async function deletePost(id: string) {
   const res = await actionHandler(() => PostRepository.remove(id));
   return res;
 }
+
+// 标题字段模糊查找
+export async function searchPostsByTitle(title: string) {
+  const res = await actionHandler(() => PostRepository.findByTitle(title));
+  return res;
+}
