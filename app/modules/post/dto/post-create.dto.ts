@@ -14,9 +14,9 @@ export const CreatePostSchema = z.object({
 
   // 状态（默认草稿） // 与 schema 一致
   status: z
-    .enum(['draft', 'pending', 'published', 'trash'])
+    .enum(['draft', 'pending', 'published', 'trash']) // pending1是审核中状态 -- 目前没有审核功能 先保留这个状态 后续补充审核功能
     .optional()
-    .default('draft'),
+    .default('published'), // trash 状态暂时不使用 先保留 后续补充删除功能  软删除 （30天删除恢复能力）
 
   // 统计字段（可选，通常由系统计算）
   wordCount: z.number().int().min(0).optional(),

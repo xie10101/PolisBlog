@@ -2,25 +2,68 @@
 // 主要是 orm 操作；
 import { db } from '@/lib/db.ts';
 import posts from './post.schema.ts';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 export const PostRepository = {
   // 查找所有
   async findAll() {
     return await db.select().from(posts);
   },
+
+  // 分页查找 ：
+  async findByPage(page: number, pageSize: number) {
+    const offset = (page - 1) * pageSize;
+
+    // Count 查询
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(posts);
+
+    const total = Number(count ?? 0);
+    const data = await db.select().from(posts).limit(pageSize).offset(offset);
+
+    return {
+      data,
+      total,
+      pageCount: Math.ceil(total / pageSize),
+      currentPage: page,
+      pageSize,
+    };
+  },
+
   //   创建post ——数据插入操作
   async create(post: typeof posts.$inferInsert) {
     //  $inferInsert 类型介绍 ： 它能自动从你的数据库表定义中推导出 用于插入数据时的 TypeScript 类型
-    return await db.insert(posts).values(post);
+
+    //  对创建操作进行parse 校验否则会导致确实字段
+    try {
+      return await db.insert(posts).values(post).returning();
+    } catch (error) {
+      console.error('创建文章失败:', error);
+      throw error;
+    }
+  },
+  // 根据slug 查找文章
+
+  async findBySlug(slug: string) {
+    return await db
+      .select()
+      .from(posts)
+      .where(eq(posts.slug, slug))
+      .limit(1)
+      .then(res => res[0] || null);
   },
 
   // 更新 -- imageUrl操作
   async updateImageUrl(id: string, coverImage: string) {
-    return await db.update(posts).set({ coverImage }).where(eq(posts.id, id));
+    return await db
+      .update(posts)
+      .set({ coverImage })
+      .where(eq(posts.id, id))
+      .returning();
   },
   //删除操作
   async remove(id: string) {
-    await db.delete(posts).where(eq(posts.id, id));
-    return { success: true, delectedCount: 1 };
+    await db.delete(posts).where(eq(posts.id, id)).returning();
+    return { success: true, deletedCount: 1 };
   },
 };

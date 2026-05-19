@@ -13,7 +13,8 @@ import {
   ItemTitle,
   ItemDescription,
 } from '../ui/item';
-export default function Brief(props: { slug: string }) {
+import Image from 'next/image';
+export default function Brief(props: { slug: string; meta?: MetaItem | null }) {
   const router = useRouter();
   const handleLinkClick = (e: React.MouseEvent<HTMLDivElement>) => {
     router.push(`/${props.slug}`);
@@ -32,7 +33,13 @@ export default function Brief(props: { slug: string }) {
           className="flex w-full cursor-pointer items-center gap-2"
         >
           <ItemMedia variant="image" className="h-32 w-32 rounded-2xl">
-            <img src="/images/1.png" alt="博客项图片" />
+            <Image
+              // props.meta?.coverImage
+              src={'/images/1.png'}
+              alt="博客项图片"
+              width={128}
+              height={128}
+            />
           </ItemMedia>
           <ItemContent className="w-40">
             <ItemTitle className="line-clamp-1">

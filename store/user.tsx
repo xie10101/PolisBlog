@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-
+import { persist } from 'zustand/middleware';
 interface UserInfo {
   id: string | null;
   email: string | null;
@@ -23,23 +23,26 @@ const initialState: UserInfo = {
   bio: null,
 };
 
-const useUserInfoStore = create<UserInfoStore>(set => ({
-  ...initialState,
+const useUserInfoStore = create<UserInfoStore>()(
+  persist(
+    set => ({
+      ...initialState,
 
-  setInfo: info =>
-    set(state => ({
-      ...state,
-      ...info,
-    })),
+      setInfo: info =>
+        set(state => ({
+          ...state,
+          ...info,
+        })),
 
-  clearInfo: () => set(initialState),
-}));
+      clearInfo: () => set(initialState),
+    }),
+    {
+      name: 'app-storage',
+    },
+  ),
+);
 
 export default useUserInfoStore;
-
-// persist 中间件的介绍
-
-//登录状态追踪 ( isLoggedIn ) ：
-
-// 新增了 isLoggedIn 属性。
-//自动化逻辑 ：在调用 setInfo 时，系统会自动判断是否有 id 传入，从而自动更新登录状态。
+//  persist 本质运行 ：
+// 在每次项目刷新时会自动从本地存储读取 -> 初始化 Zustand 状态
+// 在状态更新时会自动将新的状态保存到本地存储中
