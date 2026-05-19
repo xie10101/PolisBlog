@@ -1,6 +1,6 @@
 //  主要的md文件 处理逻辑：
 //  1. 遍历文件夹，获M所有md文件
-import { MetaItem } from '@/app/types/meta';
+import { MetaItem } from '@/app/(frontend)/types/meta';
 import { readdir } from 'fs/promises';
 import { promises as fs } from 'fs'; //  fs.promises 为fs模块的Promise版本
 //  2. 解析md文件，获取标题、日期、标签等信息

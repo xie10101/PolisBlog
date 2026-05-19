@@ -1,7 +1,7 @@
 'use client';
 import Brief from '@/app/components/Blog/brief';
 import Pagination from '@/app/components/pagination';
-import { MetaItem } from '@/app/types/meta';
+import { MetaItem } from '@/app/(frontend)/types/meta';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { fetchPostsByPage } from '../modules/post/post.actions';
@@ -25,20 +25,26 @@ export default function PageList() {
       if (res.success && res.data) {
         //  对获取到的数据进行字段转换处理
         const { data, total } = res.data;
-        const formattedPosts = data.map((post: Post) => ({
-          slug: post.slug,
-          // meta 是指文章除去 主要内容 content ， contentHtml , slug ， status  以外的字段 
-          meta: {
-            title: post.title,
-            createdAt: post?.createdAt?.toISOString() || '',
-            categoryId: post.categoryId,
-            wordCount: post.wordCount,
-            readCount: post.viewCount,
-            readDuration: post.readTime,
-            description: post.excerpt,
-            coverImage: post.coverImage,
-          },
-        }));
+        const formattedPosts = data.map((post: Post) => {
+          const {
+            content,
+            htmlContent,
+            status,
+            slug,
+            updatedAt,
+            deletedAt,
+            createdAt,
+            ...meta
+          } = post;
+          return {
+            slug: post.slug,
+            // meta 是指文章除去 主要内容 content ， contentHtml , slug ， status ……  以外的字段
+            meta: {
+              ...meta,
+              publishedAt: post.publishedAt?.toISOString() || '',
+            },
+          };
+        });
         setPosts(formattedPosts);
         setTotalNum(total);
         toast.success('获取文章列表成功');

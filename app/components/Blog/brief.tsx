@@ -1,9 +1,9 @@
 // 内容简述组件
 'use client';
-import { MetaItem } from '@/app/types/meta';
+import { MetaItem } from '@/app/(frontend)/types/meta';
 import '@/app/reset.css';
-// import PostTips from './components/Blog/PostTips';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Item,
   ItemSeparator,
@@ -14,6 +14,19 @@ import {
   ItemDescription,
 } from '../ui/item';
 import Image from 'next/image';
+
+function formatDate(value?: string | null) {
+  if (!value) return '无时间';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '无时间';
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date);
+}
+
 export default function Brief(props: { slug: string; meta?: MetaItem | null }) {
   const router = useRouter();
   const handleLinkClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -51,24 +64,24 @@ export default function Brief(props: { slug: string; meta?: MetaItem | null }) {
             <ItemDescription>
               <span className="text-muted-foreground text-sm font-bold">
                 {' '}
-                {props.meta?.createdAt || '无时间'}{' '}
+                {formatDate(props.meta?.publishedAt)}{' '}
               </span>
             </ItemDescription>
             <ItemDescription>
               <span className="text-muted-foreground text-sm font-bold">
-                {props.meta?.summary || '无标签'}
+                {props.meta?.excerpt || '无标签'}
               </span>
             </ItemDescription>
           </ItemContent>
         </div>
         <ItemFooter className="flex w-full items-center justify-between gap-2">
-          <span> 作者：{props.meta?.wordCount || '无作者'} </span>
-          <a
+          <span> 作者：{props.meta?.authorId || '无作者'} </span>
+          <Link
             href={`/${props.slug}`}
             className="text-sm text-[#202121] underline"
           >
-            查看详情
-          </a>
+            阅读更多
+          </Link>
         </ItemFooter>
         <ItemSeparator />
       </div>

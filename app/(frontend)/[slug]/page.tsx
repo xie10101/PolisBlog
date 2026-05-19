@@ -1,4 +1,4 @@
-import { MetaItem } from '@/app/types/meta';
+import { MetaItem } from '@/app/(frontend)/types/meta';
 import Article from '@/app/components/Blog/Article';
 import { Suspense } from 'react';
 import { fetchPostBySlug } from '@/app/modules/post/post.actions';
@@ -12,35 +12,39 @@ export default async function Post({
   const slug = (await params).slug;
   let meta: MetaItem = {
     title: '',
-    createdAt: '',
-    categoryId: '',
+    authorId: '',
+    publishedAt: '',
     wordCount: 0,
-    readCount: 0,
+    readTime: 0,
+    viewCount: 0,
+    id: '',
   };
 
-  let htmlContent1 = '';
+  let html = '';
   const res = await fetchPostBySlug((await params).slug);
   if (res.success && res.data) {
-    const { htmlContent } = res.data;
-    htmlContent1 = htmlContent || '';
+    const {
+      content,
+      htmlContent,
+      status,
+      slug,
+      updatedAt,
+      deletedAt,
+      createdAt,
+      ...rest
+    } = res.data;
+    html = htmlContent || '';
     meta = {
-      title: res.data.title,
-      createdAt: res.data.createdAt?.toISOString() || '',
-      categoryId: res.data.categoryId || '',
-      wordCount: res.data.wordCount || 0,
-      readCount: res.data.viewCount || 0,
-      // readDuration: res.data.readDuration,
-      summary: res.data.excerpt || '',
-      coverImage: res.data.coverImage || '',
+      ...rest,
+      publishedAt: res.data.publishedAt?.toISOString() || '',
     };
   } else {
-    toast.error('获取文章内容失败');
+    toast('获取文章内容失败');
   }
 
   return (
     <Suspense fallback={<div>加载中...</div>}>
-      <Article slug={slug} meta={meta} htmlContent={htmlContent1} />
+      <Article slug={slug} meta={meta} htmlContent={html} />
     </Suspense>
   );
 }
-
