@@ -16,17 +16,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createPost } from '@/app/modules/post/post.actions';
 import { getActiveCategories } from '@/app/modules/category/category.actions';
-import dayjs from 'dayjs';
 import useUserInfoStore from '@/store/user';
 import {
   CreateFormDto,
   CreateFormtSchema,
 } from '@/app/modules/post/dto/newpost-create.dto';
-import { AnyCnameRecord } from 'dns';
+import { toast } from 'sonner';
 
 // 组件懒加载和渲染方式的设置
 const MDEditor = dynamic(() => import('@uiw/react-md-editor'), {
@@ -55,7 +53,8 @@ export default function PostEditorPage() {
   } = useForm<CreateFormDto>({
     defaultValues: {
       title: '',
-      coverImage: '/xx',
+      coverImage:
+        'https://raw.githubusercontent.com/xie10101/IMG-_Bed/main/imgs/20260315233353402.jpg',
       excerpt: '',
       categoryId: '',
     },
@@ -68,6 +67,8 @@ export default function PostEditorPage() {
       const res = await getActiveCategories();
       if (res.success && res.data) {
         setCategories(res.data as any);
+      } else {
+        toast.error('获取分类失败');
       }
     }
     fetchCategories();
@@ -111,10 +112,7 @@ export default function PostEditorPage() {
 
   const previewRef = useRef<HTMLDivElement>(null);
 
-  // 发布文章
-  // 有待补充更新逻辑
   async function handlePublish(data: CreateFormDto) {
-    console.log(data);
     const contentHtml = extractInnerHtml(previewRef.current?.innerHTML || '');
     const slug = generateSlug(data.title || '');
     const { wordCount, readTime } = calculateMetrics(content);
@@ -128,23 +126,18 @@ export default function PostEditorPage() {
       readTime,
       publishedAt: new Date(),
       authorId: id as string,
-      // 状态 - 置顶 排序
+      // 状态 置顶 排序
     };
-    console.log(postData);
-    try {
-      const res = await createPost(postData);
-      console.log(res);
-      if (res.success) {
-        setIsDialogOpen(false);
-        // 这里可以添加成功提示或跳转
-      } else {
-        // 处理后端返回的错误
-        setError('root', { message: res.error as string });
-      }
-    } catch (error) {
-      console.error('发布文章失败:', error);
+    const res = await createPost(postData);
+    if (res.success) {
+      toast('发布成功');
+      setIsDialogOpen(false);
+    } else {
+      toast.error(res.error as string);
+      setError('root', { message: res.error as string });
     }
   }
+
   //  获取内部Html内容
   function extractInnerHtml(html: string): string {
     const match = html.match(/<div[^>]*>([\s\S]*?)<\/div>/);
@@ -159,8 +152,19 @@ export default function PostEditorPage() {
           <Link href="/dashboard/drafts">草稿箱</Link>
         </Button>
         <div className="flex gap-2">
-          <Button variant="outline">保存草稿</Button>
-          <Button onClick={() => setIsDialogOpen(true)}>发布</Button>
+          <Button
+            variant="outline"
+            onClick={() => toast('草稿已保存', { position: 'top-center' })}
+          >
+            保存草稿
+          </Button>
+          <Button
+            onClick={() => {
+              setIsDialogOpen(true);
+            }}
+          >
+            发布
+          </Button>
         </div>
       </div>
 
@@ -201,7 +205,6 @@ export default function PostEditorPage() {
                   <span className="error-message">{errors.title.message}</span>
                 )}
               </div>
-
               {/* 摘要 */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">摘要</label>
@@ -223,7 +226,6 @@ export default function PostEditorPage() {
                   {...register('categoryId')}
                   className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <option value="">请选择分类</option>
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name}
@@ -236,8 +238,8 @@ export default function PostEditorPage() {
                   </span>
                 )}
               </div>
-
               {/* 封面图 */}
+              {/** 暂时未补充上传功能 先使用默认url 兜底 -提交  */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">封面图片 URL</label>
                 {/*  此处处理存在问题 - url 可能无效- 最好是1. 可以判断该URL有效或者直接从图库中复制选择传递*/}
@@ -251,7 +253,6 @@ export default function PostEditorPage() {
                   </span>
                 )}
               </div>
-
               {/* 统计信息预览 */}
               <div className="flex gap-4 text-sm text-gray-500">
                 <span>预计字数：{calculateMetrics(content).wordCount} 字</span>
@@ -259,7 +260,6 @@ export default function PostEditorPage() {
                   预计阅读时间：{calculateMetrics(content).readTime} 分钟
                 </span>
               </div>
-
               {/* 内容预览 -- 该数据的处理1. 因为转换时内容逻辑执行的所以验证可以自定义处理  */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">内容预览</label>
@@ -296,5 +296,3 @@ export default function PostEditorPage() {
     </div>
   );
 }
-
-// 表单字段基础交互和单独逻辑处理 -- 分离设置chema

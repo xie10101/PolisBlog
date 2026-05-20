@@ -12,13 +12,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.log('检查是否执行');
         const { username, password } = credentials;
 
-        const user = await getUserByUserName(username as string);
+        const res = await getUserByUserName(username as string); // 返回值变了
 
-        if (!user) return null;
+        if (!res.success || !res.data) return null; // 存在报错
 
-        const res = await bcrypt.compare(password as string, user.passwordHash); //返回ture/false
+        const user = res.data;
+        const passwordMatches = await bcrypt.compare(
+          password as string,
+          user.passwordHash,
+        );
 
-        if (res) return user; // 必须返回一个user对象对照 token存放 
+        if (passwordMatches) return user;
 
         return null;
       },

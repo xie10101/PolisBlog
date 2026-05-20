@@ -7,7 +7,7 @@ import { ZodError } from 'zod';
 export type ActionResponse<T> = {
   // 数据层响应成功与否标志
   success: boolean;
-  data?: T;
+  data?: T | null;
   error?: string; // 用于存储常规错误信息 -string类型
   errors?: Record<string, string[]>; // 用于存储 Zod 验证错误 - 实际的错误对象
 };
@@ -15,6 +15,8 @@ export type ActionResponse<T> = {
 /**
  * Server Action 全局拦截/包装器
  * 用于统一处理错误日志、验证错误以及返回格式
+ *
+ * 该拦截器仅用于错误捕捉，错误信息收集 ，基础server 执行 ， 统一响应格式
  */
 export async function actionHandler<T>(
   action: () => Promise<T>,
@@ -29,15 +31,35 @@ export async function actionHandler<T>(
     if (error instanceof ZodError) {
       return {
         success: false,
-        error: '输入数据验证失败',
+        data: null,
+        error: '输入数据有误',
         errors: error.flatten().fieldErrors as Record<string, string[]>,
       };
     }
+
+    /**
+ *  error.flatten  : ZOD 内部封装方法 
+ * [
+      { code: 'too_small', message: '至少2个字符', path: ['username'] },
+      { code: 'invalid_type', message: '必填', path: ['password'] },
+   ]
+    转换为：
+    {
+      formErrors: [],       // 全局错误（一般不用）
+      fieldErrors: {        // 字错误（前端最需要！）
+        username: ['至少2个字符'],
+        password: ['必填']
+      }
+    }
+
+ */
 
     // 处理常规错误
     return {
       success: false,
       error: error instanceof Error ? error.message : '服务器内部错误',
+      data: null,
+      errors: undefined,
     };
   }
 }
@@ -64,7 +86,7 @@ export function apiHandler(handler: (...args: any[]) => Promise<any>) {
     } catch (error) {
       console.error('API Route Error:', error);
 
-      const isZodError = error instanceof ZodError; // controller 包含了 输入数据校验部分 
+      const isZodError = error instanceof ZodError; // controller 包含了 输入数据校验部分
       const status = isZodError ? 400 : 500; // 400 - 对应 Zod 验证错误，500 - 对应常规错误
       const message = error instanceof Error ? error.message : '服务器内部错误';
 

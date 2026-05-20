@@ -3,24 +3,19 @@
 import UserRepository from '@/app/modules/user/server';
 import { RegisterSchema, registerDto } from './dto/register.dto';
 import bcrypt from 'bcryptjs';
+import { actionHandler } from '@/lib/api-handler';
 
 export async function getUserByUserName(username: string) {
-  console.log(username);
-  return await UserRepository.getUserByName(username);
+  const res = await actionHandler(() => UserRepository.getUserByName(username));
+  return res;
 }
 
-// 获取当前第一个用户信息
-export async function getFirstUser() {
-  return await UserRepository.getFirstUser();
-}
-
-// 注册用户
-// 类型分离 -- 不包含 confirm
 export async function Register(data: registerDto) {
   // 1. Zod 验证数据
   const parsed = RegisterSchema.safeParse(data);
   if (!parsed.success) {
-    return { error: '参数校验失败', details: parsed.error.issues };
+    // 兜底
+    throw new Error('参数校验失败');
   }
 
   const { username, email, password } = parsed.data;
@@ -28,13 +23,13 @@ export async function Register(data: registerDto) {
   // 2. 检查用户名是否已存在
   const existingUser = await UserRepository.getUserByName(username);
   if (existingUser) {
-    return { error: '用户名已被注册' };
+    throw new Error('用户名已经存在');
   }
 
   // 3. 检查邮箱是否已存在
   const existingEmail = await UserRepository.getUserByEmail(email);
   if (existingEmail) {
-    return { error: '邮箱已被注册' };
+    throw new Error('邮箱已被注册');
   }
 
   // 4. 密码加密
@@ -47,11 +42,10 @@ export async function Register(data: registerDto) {
     passwordHash,
   });
 
-  return { success: true };
+  return { success: true, message: '注册成功' }; // 我在胡乱返回
 }
 
-//  session ID - 
-// // 获取当前用户信息
-// export async function getCurrentUserInfo() {
-//   return await UserRepository.getCurrentUserInfo();
-// }
+export async function RegisterHandler(data: registerDto) {
+  const res = await actionHandler(() => Register(data));
+  return res;
+}

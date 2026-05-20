@@ -30,7 +30,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "app/modules/user/user.actions.ts"
-, "app/Blog/layout.tsx"  ],
+    "**/*.css",
+    "app/modules/user/user.actions.ts",
+    "app/Blog/layout.tsx"
+  ],
   "exclude": ["node_modules"]
 }

@@ -4,7 +4,7 @@ import '@/app/globals.css';
 import '@/app/transition.css';
 import SideBar from '@/app/components/SideBar/SideBar';
 import Main from '@/app/components/Main';
-import generateSearchIndex from '@/lib/generateSearchIndex';
+// import generateSearchIndex from '@/lib/generateSearchIndex';
 import fs from 'fs';
 import path from 'path';
 // 字体配置
@@ -30,17 +30,17 @@ export default async function RootLayout({
   // 用于将对象的所有属性设置为只读（不可修改）
   children: React.ReactNode;
 }>) {
-  await generateSearchIndex();
+  // 生成搜索索引 - 主要负责生成 md文件的搜索索引
+  // await generateSearchIndex();
   //  此处使用的为啥是根目录路径 ？
-  const res = await fs.promises.readFile(
-    path.join(process.cwd(), '/public/SearchIndex/search-index.json'),
-    'utf-8',
-  );
+  // const res = await fs.promises.readFile(
+  //   path.join(process.cwd(), '/public/SearchIndex/search-index.json'),
+  //   'utf-8',
+  // );
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} body antialiased`}
-        style={{ position: 'relative' }}
       >
         <div id="root" className="flex-1">
           <SideBar className={'sidebar'}></SideBar>

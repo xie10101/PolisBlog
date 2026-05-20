@@ -1,8 +1,6 @@
-// 一个用户信息展示卡片
+'use client';
 import Image from 'next/image';
-import { auth } from '@/app/modules/auth';
-import UserRepository from '@/app/modules/user/server';
-
+import useUserInfoStore from '@/store/user';
 // 用户信息的基础类型定义
 export type User = {
   id: number;
@@ -11,12 +9,10 @@ export type User = {
   avatarUrl: string;
 };
 
-export async function User() {
-  // 从server Action 中获取用户信息
-  const session = await auth();
-  const user = session?.user;
-  const userId = user?.id || '0';
-  const userInfo = await UserRepository.getUserById(userId);
+export function User() {
+
+  const userInfo = useUserInfoStore();
+  console.log('UserInfo from Zustand:', userInfo); // 调试输出
   return (
     <>
       <div className="flex h-full w-full items-center">

@@ -12,6 +12,7 @@ import SearchItem from './SearchItem';
 import useDebounce from '@/app/hooks/useDebounce';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
+import { searchPostsByTitle } from '@/app/modules/post/post.actions';
 type SearchItemProps = {
   isShow: boolean;
   onClose?: () => void;
@@ -31,25 +32,27 @@ const SearchModal = (props: SearchItemProps) => {
     setRoot(document.getElementById('modal-root') as HTMLElement);
   }, []);
   useEffect(() => {
-    //  会自动将 /SearchIndex/search-index.json 转为请求路径
-    fetch('/SearchIndex/search-index.json')
-      .then(res => res.json())
-      // 通过 fetch 请求 JSON 文件（如 data.json）时，服务器会返回文件内容，响应头中 Content-Type 通常为 application/json
-      .then(data => {
-        if (debouncedValue === '') {
-          setResults([]);
-          return;
-        }
-        const filtered = data.filter((item: any) => {
-          //  对于空白字符串的处理
-          if (item.title === undefined) return false;
-          return item.title
-            .toLowerCase()
-            .includes(debouncedValue.toLowerCase());
-        });
+    const searchHandler = async () => {
+      const res = await searchPostsByTitle(debouncedValue);
+      if (res.success && res.data) {
+        setResults(res.data);
+      }
+    };
+    if (debouncedValue.trim() !== '') {
+      searchHandler();
+    } else {
+      setResults([]);
+    }
 
-        setResults(filtered);
-      });
+    // const filtered = data.filter((item: any) => {
+    //   //  对于空白字符串的处理
+    //   if (item.title === undefined) return false;
+    //   return item.title
+    //     .toLowerCase()
+    //     .includes(debouncedValue.toLowerCase());
+    // });
+    // setResults(filtered);
+    // });
   }, [debouncedValue]);
 
   if (!root) return null; // 提前中断无法挂载 AnimatePresence

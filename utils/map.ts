@@ -81,13 +81,13 @@ function mapStatusToUI(status: string | null): ArticleUI['status'] {
 /**
  * 如果需要，也可以构建反向映射 (UI -> DB) 用于保存数据
  */
-export function mapPostUIToDB(
-  uiPost: Partial<ArticleUI>,
-): Partial<typeof posts.$inferInsert> {
-  return {
-    title: uiPost.title,
-    coverImage: uiPost.imageUrl,
-    status: uiPost.status?.toLowerCase(),
-    // ... 其他字段映射
-  };
-}
+// export function mapPostUIToDB(
+//   uiPost: Partial<ArticleUI>,
+// ): Partial<typeof posts.$inferInsert> {
+//   return {
+//     title: uiPost.title,
+//     coverImage: uiPost.imageUrl,
+//     status: uiPost.status?.toLowerCase(),
+//     // ... 其他字段映射
+//   };
+// }

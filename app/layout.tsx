@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
-
 // 元数据的使用 可以在每个页面中使用
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} `}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} body antialiased`}
+      >
+        <Toaster />
         {children}
       </body>
     </html>

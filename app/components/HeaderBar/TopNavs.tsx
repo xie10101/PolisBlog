@@ -20,6 +20,11 @@ const TopNavs = () => {
       icon: faUser,
       path: '/about',
     },
+    {
+      name: '知识库问答',
+      icon: faSearch,
+      path: '/agent',
+    },
   ];
 
   const [isShowSearchModal, setIsShowSearchModal] = useState(false);

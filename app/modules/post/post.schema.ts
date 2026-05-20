@@ -89,3 +89,5 @@ const posts = pgTable(
 );
 
 export default posts;
+
+export type Post = typeof posts.$inferSelect;
