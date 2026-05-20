@@ -9,7 +9,7 @@ export default async function Post({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const slug = (await params).slug;
+  const slug = decodeURIComponent((await params).slug);
   let meta: MetaItem = {
     title: '',
     authorId: '',
@@ -21,7 +21,7 @@ export default async function Post({
   };
 
   let html = '';
-  const res = await fetchPostBySlug((await params).slug);
+  const res = await fetchPostBySlug(slug);
   if (res.success && res.data) {
     const {
       content,
