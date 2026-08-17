@@ -4,9 +4,9 @@ import Pagination from '@/app/components/pagination';
 import { MetaItem } from '@/app/(frontend)/types/meta';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { fetchPostsByPage } from '../modules/post/post.actions';
+import { fetchPostsByPage } from '../../modules/post/post.actions';
 import { toast } from 'sonner';
-import { Post } from '../modules/post/post.schema';
+import { Post } from '../../modules/post/post.schema';
 export default function PageList() {
   const searchParams = useSearchParams();
   const [totalNum, setTotalNum] = useState(1);

@@ -1,7 +1,7 @@
 'use server';
 // controller 层
-import { PostRepository } from '@/app/modules/post/post.server';
-import { CreatePostSchema } from '@/app/modules/post/dto/post-create.dto';
+import { PostRepository } from '@/modules/post/post.server';
+import { CreatePostSchema } from '@/modules/post/dto/post-create.dto';
 import { actionHandler } from '@/lib/api-handler';
 
 // 包括 ：删除 ，新增， 更新 ， 查找 （多条件）（根据具体条件- 分页- 多条件）

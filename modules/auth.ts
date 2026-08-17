@@ -9,7 +9,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       async authorize(credentials) {
-        console.log('检查是否执行');
+
         const { username, password } = credentials;
 
         const res = await getUserByUserName(username as string); // 返回值变了

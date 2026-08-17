@@ -1,7 +1,7 @@
 import { MetaItem } from '@/app/(frontend)/types/meta';
 import Article from '@/app/components/Blog/Article';
 import { Suspense } from 'react';
-import { fetchPostBySlug } from '@/app/modules/post/post.actions';
+import { fetchPostBySlug } from '@/modules/post/post.actions';
 import { toast } from 'sonner';
 
 export default async function Post({

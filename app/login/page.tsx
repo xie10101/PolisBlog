@@ -12,10 +12,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { SubmitHandler } from 'react-hook-form';
-import { LoginDto, LoginSchema } from '../modules/user/dto/login.dto';
+import { LoginDto, LoginSchema } from '../../modules/user/dto/login.dto';
 import { signIn } from 'next-auth/react';
 import useUserInfoStore from '@/store/user';
-import { getUserByUserName } from '../modules/user/user.actions';
+import { getUserByUserName } from '../../modules/user/user.actions';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 const LoginPage = () => {

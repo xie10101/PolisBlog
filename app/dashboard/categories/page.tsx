@@ -66,9 +66,9 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-} from '@/app/modules/category/category.actions';
-import { CreateCategoryDto } from '@/app/modules/category/dto/category-create.dto';
-import { UpdateCategoryDto } from '@/app/modules/category/dto/category-update.dto';
+} from '@/modules/category/category.actions';
+import { CreateCategoryDto } from '@/modules/category/dto/category-create.dto';
+import { UpdateCategoryDto } from '@/modules/category/dto/category-update.dto';
 import { toast } from 'sonner';
 //  表格数据实例和类型定义
 export type Category = {
