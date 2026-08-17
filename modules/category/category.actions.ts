@@ -1,14 +1,14 @@
 'use server';
 
-import { CategoryRepository } from '@/app/modules/category/category.server';
+import { CategoryRepository } from '@/modules/category/category.server';
 import {
   CreateCategoryDto,
   CreateCategorySchema,
-} from '@/app/modules/category/dto/category-create.dto';
+} from '@/modules/category/dto/category-create.dto';
 import {
   UpdateCategoryDto,
   UpdateCategorySchema,
-} from '@/app/modules/category/dto/category-update.dto';
+} from '@/modules/category/dto/category-update.dto';
 import { actionHandler } from '@/lib/api-handler';
 
 // 获取所有分类
@@ -90,7 +90,7 @@ export async function deleteCategory(id: string) {
     return { success: false, error: '删除分类失败' };
   }
 }
-// 获取分类文章列表 
+// 获取分类文章列表
 export async function getCategoryPosts(categoryId: string) {
   try {
     const category = await CategoryRepository.findById(categoryId);

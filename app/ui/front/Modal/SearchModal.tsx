@@ -12,7 +12,7 @@ import SearchItem from './SearchItem';
 import useDebounce from '@/app/hooks/useDebounce';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
-import { searchPostsByTitle } from '@/app/modules/post/post.actions';
+import { searchPostsByTitle } from '@/modules/post/post.actions';
 type SearchItemProps = {
   isShow: boolean;
   onClose?: () => void;

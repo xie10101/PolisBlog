@@ -21,7 +21,7 @@
       publishedAt: timestamp('published_at', { withTimezone: true }),
  */
 //
-import posts from '@/app/modules/post/post.schema';
+import posts from '@/modules/post/post.schema';
 
 // 1. 定义前端 UI 使用的类型
 export interface ArticleUI {

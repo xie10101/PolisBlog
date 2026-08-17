@@ -51,7 +51,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState, useEffect } from 'react';
-import { deletePost, fetchAllPosts } from '@/app/modules/post/post.actions';
+import { deletePost, fetchAllPosts } from '@/modules/post/post.actions';
 import { mapPostDBToUI } from '@/utils/map';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';

@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import {
   blogInfoSchema,
   type BlogInfoFormData,
-} from '@/app/modules/authorInfo/authorInfo.schema.validation';
+} from '@/modules/authorInfo/authorInfo.schema.validation';
 import { Button } from '@/components/ui/button';
 
 export function AuthInfoForm() {

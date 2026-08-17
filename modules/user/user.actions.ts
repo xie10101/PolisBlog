@@ -1,6 +1,6 @@
 'use server';
 
-import UserRepository from '@/app/modules/user/server';
+import UserRepository from '@/modules/user/server';
 import { RegisterSchema, registerDto } from './dto/register.dto';
 import bcrypt from 'bcryptjs';
 import { actionHandler } from '@/lib/api-handler';

@@ -1,7 +1,10 @@
 import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
-  // 处理的登录页路由路径
+  // 处理的登录页路由路径 - 设置过期时间
+  session: {
+    maxAge: 30 * 24 * 60 * 60, // 30 天
+  },
   pages: {
     signIn: '/login',
   },
@@ -23,7 +26,7 @@ export const authConfig = {
     },
 
     async session({ session, token }) {
-      //
+
       if (token.id) session.user.id = token.id as string;
       // if (token.username) session.user.name = token.username as string;
       return session;

@@ -17,13 +17,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createPost } from '@/app/modules/post/post.actions';
-import { getActiveCategories } from '@/app/modules/category/category.actions';
+import { createPost } from '@/modules/post/post.actions';
+import { getActiveCategories } from '@/modules/category/category.actions';
 import useUserInfoStore from '@/store/user';
 import {
   CreateFormDto,
   CreateFormtSchema,
-} from '@/app/modules/post/dto/newpost-create.dto';
+} from '@/modules/post/dto/newpost-create.dto';
 import { toast } from 'sonner';
 
 // 组件懒加载和渲染方式的设置

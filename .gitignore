@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+#旧工具卸载：
+getBlog_oldtils
+
+lib/mock
