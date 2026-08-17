@@ -123,12 +123,31 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground flex;
   }
 }
-/*  自定义 工具类  */
 
-/* 在文件末尾添加 */
+/* 组件类*/
+
+@layer components {
+  .hookForm {
+    @apply space-y-4;
+  }
+
+  .formGroup {
+    @apply space-y-2;
+  }
+
+  .errorMessage {
+    @apply text-destructive mt-1 text-xs;
+  }
+
+  .submitBtn {
+    @apply bg-primary text-primary-foreground w-full rounded-md border-none px-4 py-2 font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+}
+
+/*  自定义 工具类  */
 @layer utilities {
   /* 之前提到的隐藏滚动条 */
   .no-scrollbar::-webkit-scrollbar {

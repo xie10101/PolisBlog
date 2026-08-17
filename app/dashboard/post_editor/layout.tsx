@@ -5,7 +5,8 @@ export default function PostEditorLayout({
 }) {
   return (
     <section>
-      {/* Post Editor specific layout elements like a sidebar or secondary nav can go here */}
+      {/* Post Editor specific layout elements like a sidebar or secondary nav can go here */
+      }
       {children}
     </section>
   );

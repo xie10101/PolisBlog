@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import Image from 'next/image';
 import {
@@ -15,19 +14,26 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { MoreHorizontal, Search, PlusCircle } from 'lucide-react';
-
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -44,67 +50,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-// mock 数据
-const data: Article[] = [
-  {
-    id: 'm5gr84i9',
-    title: 'Getting Started with React Hooks',
-    imageUrl: '/file.svg', // Replace with actual image paths
-    category: 'Frontend',
-    tags: ['React', 'JavaScript', 'Hooks'],
-    status: 'Published',
-    publishTime: 'Jan 15, 2024, 06:30 PM',
-    views: 1250,
-  },
-  {
-    id: '3u1reuv4',
-    title: 'Advanced TypeScript Patterns',
-    imageUrl: '/file.svg',
-    category: 'Backend',
-    tags: ['TypeScript', 'Patterns', 'Advanced'],
-    status: 'Draft',
-    publishTime: 'Jan 14, 2024, 10:20 PM',
-    views: 890,
-  },
-  {
-    id: 'derv1ws0',
-    title: 'Building Scalable Web Applications',
-    imageUrl: '/file.svg',
-    category: 'Architecture',
-    tags: ['Scalability', 'Web Apps', 'Performance'],
-    status: 'Scheduled',
-    publishTime: 'Jan 20, 2024, 05:00 PM',
-    views: 0,
-  },
-  {
-    id: '5kma53ae',
-    title: 'CSS Grid vs Flexbox: When to Use What',
-    imageUrl: '/file.svg',
-    category: 'Frontend',
-    tags: ['CSS', 'Grid', 'Flexbox'],
-    status: 'Published',
-    publishTime: 'Jan 13, 2024, 12:45 AM',
-    views: 1650,
-  },
-  {
-    id: 'bhqecj4p',
-    title: 'Introduction to Machine Learning',
-    imageUrl: '/file.svg',
-    category: 'AI/ML',
-    tags: ['Machine Learning', 'AI', 'Python'],
-    status: 'Published',
-    publishTime: 'Jan 11, 2024, 07:15 PM',
-    views: 2100,
-  },
-];
-
+import { useState, useEffect } from 'react';
+import { deletePost, fetchAllPosts } from '@/modules/post/post.actions';
+import { mapPostDBToUI } from '@/utils/map';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 export type Article = {
   id: string;
   title: string;
   imageUrl: string;
   category: string;
-  tags: string[];
+  // tags: string[];
   status: 'Published' | 'Draft' | 'Scheduled';
   publishTime: string;
   views: number;
@@ -142,18 +98,24 @@ export const columns: ColumnDef<Article>[] = [
     header: 'Article Title',
     cell: ({ row }) => (
       <div className="flex items-center gap-4">
-        <Image
-          src={row.original.imageUrl}
-          alt={row.original.title}
-          width={40}
-          height={40}
-          className="h-10 w-10 rounded-md object-cover"
-          //  错误处理 -- 的目标地址？？
-          onError={e => {
-            // Fallback for broken images
-            e.currentTarget.src = 'https://via.placeholder.com/40';
-          }}
-        />
+        {
+          <Image
+            src={row.getValue('coverImage')}
+            alt="article image"
+            width={40}
+            height={40}
+            className="h-10 w-10 rounded-md object-cover"
+            onError={() => (
+              <Image
+                src="xxx"
+                alt="placeholder image"
+                width={40}
+                height={40}
+                className="h-10 w-10 rounded-md object-cover"
+              />
+            )}
+          />
+        }
         <span className="font-medium">{row.getValue('title')}</span>
       </div>
     ),
@@ -162,20 +124,20 @@ export const columns: ColumnDef<Article>[] = [
     accessorKey: 'category',
     header: 'Category',
   },
-  {
-    accessorKey: 'tags',
-    header: 'Tags',
-    cell: ({ row }) => (
-      <div className="flex flex-wrap gap-1">
-        {row.original.tags.map(tag => (
-          // 组件属性待了解
-          <Badge key={tag} variant="secondary">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: 'tags',
+  //   header: 'Tags',
+  //   cell: ({ row }) => (
+  //     <div className="flex flex-wrap gap-1">
+  //       {row.original.tags.map(tag => (
+  //         // 组件属性待了解
+  //         <Badge key={tag} variant="secondary">
+  //           {tag}
+  //         </Badge>
+  //       ))}
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: 'status',
     header: 'Status',
@@ -206,13 +168,9 @@ export const columns: ColumnDef<Article>[] = [
   {
     id: 'actions',
     header: 'Operations',
-    // 如何 设置 colpan为 2
-    // meta: {
-    //   colSpan: 2,
-    // },
     cell: ({ row }) => {
       const article = row.original;
-      //  待处理 - 下拉框actions的设置
+      // 这里不能使用 hooks，需要从上下文传递
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -221,18 +179,29 @@ export const columns: ColumnDef<Article>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          {/* <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(article.id)}
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('openEditDialog', { detail: article }),
+                );
+              }}
             >
-              Copy article ID
+              Edit
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-          </DropdownMenuContent> */}
+            <DropdownMenuItem
+              onClick={() => {
+                window.dispatchEvent(
+                  new CustomEvent('openDeleteDialog', { detail: article }),
+                );
+              }}
+              className="text-red-600 focus:bg-red-50"
+            >
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
         </DropdownMenu>
       );
     },
@@ -241,17 +210,81 @@ export const columns: ColumnDef<Article>[] = [
 
 // Main Component
 export default function ArticlesPage() {
+  const router = useRouter();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+
+  // 编辑文章
+  const handleSaveEdit = () => {
+    // TODO: 调用编辑 API
+    console.log('保存编辑:', selectedArticle);
+    setEditDialogOpen(false);
+  };
+
+  // 删除文章
+  const handleConfirmDelete = async () => {
+    if (!selectedArticle) return;
+    const res = await deletePost(selectedArticle.id);
+
+    if (!res.success) {
+      toast.error(res.error || 'Failed to delete the article');
+      return;
+    } else {
+      toast.success('Article deleted successfully');
+      setArticles(articles.filter(a => a.id !== selectedArticle.id));
+    }
+    setDeleteDialogOpen(false);
+  };
+
+  // 监听自定义事件
+  useEffect(() => {
+    const handleOpenEditDialog = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setSelectedArticle(customEvent.detail);
+      setEditDialogOpen(true);
+    };
+
+    const handleOpenDeleteDialog = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setSelectedArticle(customEvent.detail);
+      setDeleteDialogOpen(true);
+    };
+
+    window.addEventListener('openEditDialog', handleOpenEditDialog);
+    window.addEventListener('openDeleteDialog', handleOpenDeleteDialog);
+
+    return () => {
+      window.removeEventListener('openEditDialog', handleOpenEditDialog);
+      window.removeEventListener('openDeleteDialog', handleOpenDeleteDialog);
+    };
+  }, [articles]);
+
+  // 3. 使用 useEffect 获取真实数据
+  useEffect(() => {
+    const loadData = async () => {
+      const result = await fetchAllPosts();
+      console.log(result);
+      if (result.success) {
+        setArticles(result?.data?.map(mapPostDBToUI) || []);
+      }
+      setLoading(false);
+    };
+    loadData();
+  }, []);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   // 了解是中怎样的处理方式
   const table = useReactTable({
-    data,
+    data: articles,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -269,15 +302,16 @@ export default function ArticlesPage() {
     },
   });
 
-  // console.log(table.getRowModel().rows); // 行的数组
-  // console.log(table.getRowModel().flatRows); // 行的数组，但所有子行被展平到顶层
-
   return (
     <div className="w-full p-4 md:p-8">
       {/*  响应式处理- md:xx  */}
       <header className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Articles</h1>
-        <Button>
+        <Button
+          onClick={() => {
+            router.push('/dashboard/post_editor');
+          }}
+        >
           <PlusCircle className="mr-2 h-4 w-4" /> Add New Article
         </Button>
       </header>
@@ -315,18 +349,6 @@ export default function ArticlesPage() {
                 <SelectItem value="Published">Published</SelectItem>
                 <SelectItem value="Draft">Draft</SelectItem>
                 <SelectItem value="Scheduled">Scheduled</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Categories" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="Frontend">Frontend</SelectItem>
-                <SelectItem value="Backend">Backend</SelectItem>
-                <SelectItem value="Architecture">Architecture</SelectItem>
-                <SelectItem value="AI/ML">AI/ML</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -468,6 +490,77 @@ export default function ArticlesPage() {
           </div> */}
         </div>
       </div>
+
+      {/* 编辑弹窗 */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Article</DialogTitle>
+            <DialogDescription>
+              Make changes to the article information below
+            </DialogDescription>
+          </DialogHeader>
+          {selectedArticle && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  defaultValue={selectedArticle.title}
+                  placeholder="Article title"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Category</label>
+                <Input
+                  defaultValue={selectedArticle.category}
+                  placeholder="Category"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Status</label>
+                <select
+                  defaultValue={selectedArticle.status}
+                  className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                >
+                  <option value="Published">Published</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Scheduled">Scheduled</option>
+                </select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 删除确认弹窗 */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Article</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{selectedArticle?.title}
+              &quot;? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

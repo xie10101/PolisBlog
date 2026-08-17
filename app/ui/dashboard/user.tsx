@@ -1,42 +1,33 @@
-// 一个用户信息展示卡片
+'use client';
 import Image from 'next/image';
-
+import useUserInfoStore from '@/store/user';
 // 用户信息的基础类型定义
 export type User = {
   id: number;
-  name: string;
+  username: string;
   email: string;
   avatarUrl: string;
 };
 
-export function User(
-  { user }: { user?: User } = {
-    user: {
-      id: 0,
-      name: 'User',
-      email: 'Email not available',
-      avatarUrl: '',
-    },
-  },
-) {
-  // const { name, email, avatarUrl } = user || {id: 0, name: "User", email: "Email not available", avatarUrl: ""};
-  // 一般不进行以上结构的处理
+export function User() {
 
+  const userInfo = useUserInfoStore();
+  console.log('UserInfo from Zustand:', userInfo); // 调试输出
   return (
     <>
       <div className="flex h-full w-full items-center">
         {/*  用一个头像占位符替代  */}
         <Image
-          src="/globe.svg"
+          src={userInfo?.avatar || '/globe.svg'}
           width={30}
-          height={30}
+          height={40}
           alt="avatar"
           className="rounded-full"
         />
-        <div className="ml-4 flex flex-col justify-center">
-          <h2 className="text-l font-bold">{user?.name || 'User'}</h2>
-          <p className="text-sm text-gray-500">
-            {user?.email || 'Email not available'}
+        <div className="ml-2 flex flex-col justify-center">
+          <h2 className="text-l font-bold">{userInfo?.username || 'User'}</h2>
+          <p className="text-[12px] text-gray-500">
+            {userInfo?.email || 'Email not available'}
           </p>
         </div>
       </div>
